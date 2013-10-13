@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html ng-app="hubba" id="ng-app">
+<head>
+<title>Welcome to Hubba!</title>
+
+	<link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/hubba/static/app.css" rel="stylesheet">
+	
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+	<script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/js/bootstrap.min.js"></script>
+	<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
+	<script type="text/javascript" src="http://code.angularjs.org/snapshot/angular.min.js"></script>
+	<script type="text/javascript" src="http://code.angularjs.org/snapshot/angular-route.min.js"></script>
+	<script type="text/javascript" src="/hubba/static/app.js"></script>
+</head>
+<body ng-controller="body">
+	<div class="navbar" role="navigation">
+		<ul class="nav navbar-nav">
+			<div class="navbar-header">
+			    <a class="navbar-brand" href="/hubba">Hubba</a>
+			  </div>
+			<li ng-class="{active:hubba.$route.path.indexOf('/resources') > -1}"><a href="/hubba/resources">Resources</a></li>
+			<li ng-class="{active:hubba.$route.path=='/hubba/files/'}"><a href="/hubba/files">Files</a></li>
+		</ul>
+	</div>
+	
+	<div class="view-container container">
+		<div ng-view></div>
+	</div>
+</body>
+</html>
