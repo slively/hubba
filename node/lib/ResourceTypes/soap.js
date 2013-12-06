@@ -9,57 +9,99 @@ check: { inputType: 'checkbox', value:true, header: 'Checkbox Woo!' }
 
 var soap = require('soap');
 
-function init(resource){
-	if (resource.ResourceType.config.WSDLURL.value.length){
-		soap.createClient(resource.ResourceType.config.WSDLURL.value, function(err, c) {
+function init(){
+	var self = this;
+	
+	if (this.ResourceType.configuration.WSDLURL.value.length){
+		
+		if (this.ResourceType.SOAPClient){
+			delete this.ResourceType.SOAPClient;
+		}
+		
+		this.ResourceType.connecting = true;
+		this.ResourceType.waitingQueue = [];	
+		
+		soap.createClient(this.ResourceType.configuration.WSDLURL.value, function(err, c) {
+			
+			self.ResourceType.connecting = false;
+			
 			if (err){
-				console.log(err);
+				throw err;
 				return;
 			}
-		
-			resource.ResourceType.SOAPClient = c;
-			
-			if (resource.ResourceType.config.username.value.length && resource.ResourceType.config.password.value.length){
-				client.setSecurity(new WSSecurity(resource.ResourceType.config.username.value, resource.ResourceType.config.password.value));
+						
+			self.ResourceType.SOAPClient = c;
+
+			if (self.ResourceType.configuration.username.value.length && self.ResourceType.configuration.password.value.length){
+				client.setSecurity(new WSSecurity(self.ResourceType.configuration.username.value, self.ResourceType.configuration.password.value));
 			}
+			
+			self.ResourceType.waitingQueue.forEach(function(obj){
+				obj.handler.apply(self,obj.args);
+			});
+			
 		});
 	}
-}
+	console.log(this.path);
+};
+
+function getHandler(resource,req,res){
+	if (resource.ResourceType.SOAPClient){
+		res.send(200,resource.ResourceType.SOAPClient.describe());
+	} else {
+		res.send(400,'Cannot describe resource. Either the WSDL URL is incorrect or the external SOAP resource is currently unavailable please check your resource config and that the external SOAP resource is available.');
+	}
+};
+
+function postHandler(resource,req,res){
+	if (resource.ResourceType.SOAPClient){
+		if (req.params.length > 2){			
+			resource.ResourceType.SOAPClient[req.params[0]][req.params[1]][req.params[2]](req.body, function(err, result) {
+				if (err){
+					throw err;
+				}
+				res.send(result);
+			});
+		} else {
+			resource.ResourceType.SOAPClient[req.params[0]](req.body, function(err, result) {
+				if (err){
+					throw err;
+				}
+				res.send(result);
+			});
+		}
+	} else {
+		res.send(400,'Could not create SOAP client from current WSDL URL. Please update in the resource config.')
+	}
+};
 
 exports.ResourceType = {
 	name: 'soap',
 	label: 'SOAP Proxy',
-	config: {
+	configuration: {
 		WSDLURL: { inputType: 'text', placeholder:'Enter the url for the REST resource. (ex./ http://myservice/resource)', value: '', required: true },
 		username: { inputType: 'text', placeholder:'Enter a username for authentication.', value: '' },
 		password: { inputType: 'password', placeholder:'Enter a password for authentication.', value: '' }
 	},
+	wildcardChildRoute: true,
 	GET: function(resource,req,res){
-		if (resource.ResourceType.SOAPClient){
-			res.send(resource.ResourceType.SOAPClient.describe());
+		if (resource.ResourceType.connecting === true){
+			resource.ResourceType.waitingQueue.push({
+				handler: getHandler,
+				args: [resource,req,res]
+			});
 		} else {
-			res.send(400,'Cannot describe resource. Either the WSDL URL is incorrect or the external SOAP resource is currently unavailable please check your resource config and that the external SOAP resource is available.')
+			getHandler(resource,req,res);
 		}
 	},
 	POST: function(resource, req,res){
-		if (resource.ResourceType.SOAPClient){
-			if (req.params.length > 2){			
-				resource.ResourceType.SOAPClient[req.params[0]][req.params[1]][req.params[2]](req.body, function(err, result) {
-					if (err){
-						throw err;
-					}
-					res.send(result);
-				});
-			} else {
-				resource.ResourceType.SOAPClient[req.params[0]](req.body, function(err, result) {
-					if (err){
-						throw err;
-					}
-					res.send(result);
-				});
-			}
+		if (resource.ResourceType.connecting === true){
+			resource.ResourceType.waitingQueue.push({
+				handler: postHandler,
+				args: [resource,req,res]
+			});
 		} else {
-			res.send(400,'Could not create SOAP client from current WSDL URL. Please update in the resource config.')
+			postHandler(resource,req,res);
 		}
 	},
 	RESOURCE_CREATE: init,

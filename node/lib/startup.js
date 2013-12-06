@@ -1,1 +1,5 @@
-require('./server').startup();
+require('./server').startup({
+	port: 8080
+	// resource location
+	// ???
+});

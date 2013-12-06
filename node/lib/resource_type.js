@@ -8,16 +8,16 @@ var storedResourceTypes = [];
 var defaults = {
 	name: '',
 	label: '',
-	config: {},
-	RESOURCE_CREATE: function(){},
-	RESOURCE_UPDATE: function(){},
-	RESOURCE_DELETE: function(){},
+	configuration: {},
+	wildcardChildRoute: false,
+	RESOURCE_CREATE: function(resource){},
+	RESOURCE_UPDATE: function(resource){},
+	RESOURCE_DELETE: function(resource){},
 	GET: function(req,res){res.send(405);},
-	POST: function(req,res){res.send(405);},
-	PUT: function(req,res){res.send(405);},
-	PATCH: function(req,res){res.send(405);},
-	DELETE: function(req,res){res.send(405);},
-	HEAD: function(req,res){res.send(405);}
+	POST: function(resource,req,res){res.send(405);},
+	PUT: function(resource,req,res){res.send(405);},
+	PATCH: function(resource,req,res){res.send(405);},
+	DELETE: function(resource,req,res){res.send(405);}
 };
 
 
@@ -26,6 +26,14 @@ var registerResourceType = function (type, cfg){
 		throw 'ResourceType must have a type (string).'
 	} else if (registeredResourceTypes[type]){
 		throw 'ResourceType of type ' + type + ' already exists.'
+	}
+	
+	cfg.configuration = cfg.configuration || {};
+	
+	for (var key in cfg.configuration){
+		if (typeof cfg.configuration[key].value === "undefined"){
+			throw "Configuration item " + key + " for resource " + type + " does not have a default value defined, this is required."
+		}
 	}
 	
 	var t = function(type){
@@ -38,12 +46,13 @@ var registerResourceType = function (type, cfg){
 		return {
 			name: this.name,
 			label: this.label,
-			config: this.config
+			configuration: this.configuration,
+			wildcardChildRoute: this.wildcardChildRoute
 		};
 	};
 	
 	registeredResourceTypes[type] = t;
-	storedResourceTypes.push({type: type, label: cfg.label, config: cfg.config});
+	storedResourceTypes.push({type: type, label: cfg.label, configuration: cfg.configuration});
 	return t;
 };
 
@@ -74,8 +83,13 @@ exports.refreshResourceTypes = function(){
 	require("fs").readdirSync(__dirname+"/ResourceTypes").forEach(function(file) {
 		try {
 			var rt = require(__dirname+"/ResourceTypes/" + file).ResourceType;
-			new ResourceType(rt.name, rt);
+			if (rt && rt.name){
+				new ResourceType(rt.name, rt);
+			} else {
+				console.warn(file + " did not define a ResourceType name.");
+			}
 		} catch (e){
+			console.log('ResourceType File ' + file + ' produced an error when importing: ');
 			console.log(e);
 		}
 	});
