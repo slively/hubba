@@ -13,11 +13,11 @@ var defaults = {
 	RESOURCE_CREATE: function(resource){},
 	RESOURCE_UPDATE: function(resource){},
 	RESOURCE_DELETE: function(resource){},
-	GET: function(req,res){res.send(405);},
-	POST: function(resource,req,res){res.send(405);},
-	PUT: function(resource,req,res){res.send(405);},
-	PATCH: function(resource,req,res){res.send(405);},
-	DELETE: function(resource,req,res){res.send(405);}
+	GET: function defaultGET(req,res){res.send(405);},
+	POST: function defaultPOST(resource,req,res){res.send(405);},
+	PUT: function defaultPUT(resource,req,res){res.send(405);},
+	PATCH: function defaultPATCH(resource,req,res){res.send(405);},
+	DELETE: function defaultDELETE(resource,req,res){res.send(405);}
 };
 
 
@@ -61,19 +61,19 @@ var registerResourceType = function (type, cfg){
 function ResourceType(type, options){
 	
 	// if options are passed in we are creating a new resource type
-	if (typeof options == 'object'){
+	/*if (typeof options == 'object'){
 		return registerResourceType(type, options);
 		
 	// else we are returning an already created resource type if it exists
-	} else { 
+	} else { */
 		
-		if (typeof registeredResourceTypes[type] == 'undefined')
+		if (typeof registeredResourceTypes[type] === 'undefined')
 			throw 'Resource Type "' +type+ '" is not defined!';
 		else {
 			return new registeredResourceTypes[type](options);
 		}
 		
-	}
+	//}
 };
 
 exports.ResourceType = ResourceType;
@@ -84,7 +84,7 @@ exports.refreshResourceTypes = function(){
 		try {
 			var rt = require(__dirname+"/ResourceTypes/" + file).ResourceType;
 			if (rt && rt.name){
-				new ResourceType(rt.name, rt);
+                registerResourceType(rt.name, rt);
 			} else {
 				console.warn(file + " did not define a ResourceType name.");
 			}

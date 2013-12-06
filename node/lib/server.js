@@ -37,6 +37,8 @@ var startup = function (opts){
 		try {
 			res.send(200,resource.findById(req.params.id).toJson({includeChildren: req.query.include_children === 'true'}));
 		} catch(e){
+            console.log(e.stack);
+
 			var c = 404 || e.code;
 			res.send(c,e.message);
 		}
@@ -46,6 +48,8 @@ var startup = function (opts){
 		try{
 			res.send(200,resource.findById(req.params.id).update(req.body).toJson({includeChildren: req.query.include_children === 'true'}));
 		} catch(e){
+            console.log(e.stack);
+
 			var c = 400 || e.code;
 			res.send(c,e.message);
 		}
@@ -55,6 +59,8 @@ var startup = function (opts){
 		try{
 			res.send(200,resource.findById(req.params.id).update(req.body).toJson({includeChildren: req.query.include_children === 'true'}));
 		} catch(e){
+            console.log(e.stack);
+
 			var c = 400 || e.code;
 			res.send(c,e.message);
 		}
@@ -64,6 +70,8 @@ var startup = function (opts){
 		try {
 			res.send(200,resource.findById(req.body.parentId).addChild(req.body).toJson({includeChildren:true}));
 		} catch(e){
+            console.log(e.stack);
+
 			var c = 400 || e.code, m;
 			if (e.message){
 				m = e.message;
@@ -90,35 +98,9 @@ var startup = function (opts){
 
 	resource.registerServer(server);
 	root = resource.generateResources();
-	/* 
-	var root = resource.generateResources();
-	configured resources /api/... /^\/api\/([a-zA-Z0-9_\.~-]+)\/?(.*)/ 
-	server.get(/^\/([a-zA-Z0-9_\.~-]+)\/(.*)/,function(req,res){
-		resourceHandler(req,res);
-	});
-
-	server.put(/^\/([a-zA-Z0-9_\.~-]+)\/(.*)/,function(req,res){
-		resourceHandler(req,res);
-	});
-
-	server.patch(/^\/([a-zA-Z0-9_\.~-]+)\/(.*)/,function(req,res){
-		resourceHandler(req,res);
-	});
-
-	server.post(/^\/([a-zA-Z0-9_\.~-]+)\/(.*)/,function(req,res){
-		resourceHandler(req,res);
-	});
-
-	server.del(/^\/([a-zA-Z0-9_\.~-]+)\/(.*)/,function(req,res){
-		resourceHandler(req,res);
-	});
-
-	server.head(/^\/([a-zA-Z0-9_\.~-]+)\/(.*)/,function(req,res){
-		resourceHandler(req,res);
-	});*/
-
 
 	server.listen(port);
+    console.log("Hubba listening on port: " + port);
 	return server;
 };
 
