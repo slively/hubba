@@ -42,7 +42,6 @@ function init(){
 			
 		});
 	}
-	console.log(this.path);
 };
 
 function getHandler(resource,req,res){
@@ -54,16 +53,24 @@ function getHandler(resource,req,res){
 };
 
 function postHandler(resource,req,res){
+    var reqResources = req.url.replace(/\?.*$/,'').split('/'), reqSubResources, cur, i = 0;
+
+    while(reqResources[i] != resource.name && i < reqResources.length){
+        i++;
+    }
+
+    reqSubResources = reqResources.slice(i+1);
+
 	if (resource.ResourceType.SOAPClient){
-		if (req.params.length > 2){			
-			resource.ResourceType.SOAPClient[req.params[0]][req.params[1]][req.params[2]](req.body, function(err, result) {
+		if (reqSubResources.length > 2){
+			resource.ResourceType.SOAPClient[reqSubResources[0]][reqSubResources[1]][reqSubResources[2]](req.body, function(err, result) {
 				if (err){
 					throw err;
 				}
 				res.send(result);
 			});
 		} else {
-			resource.ResourceType.SOAPClient[req.params[0]](req.body, function(err, result) {
+			resource.ResourceType.SOAPClient[reqSubResources[0]](req.body, function(err, result) {
 				if (err){
 					throw err;
 				}
@@ -71,7 +78,7 @@ function postHandler(resource,req,res){
 			});
 		}
 	} else {
-		res.send(400,'Could not create SOAP client from current WSDL URL. Please update in the resource config.')
+		res.send(400,'Invalid url, pattern must match ../my-soap-resource/:service/:port/:method or ../my-soap-resource/:method.')
 	}
 };
 

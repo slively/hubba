@@ -1,5 +1,9 @@
 var assert = require("assert-plus");
 
+/*
+    Any test with a large timeout is dependant on the external API, which is terribly slow.
+ */
+
 describe('soap resource REST API tests', function() {
 	require('../../lib/server').startup({
 		port: 8081
@@ -55,20 +59,19 @@ describe('soap resource REST API tests', function() {
 	});    
 	
 	it('GET of /api/weather_proxy should retun the WSDL in JSON.',function(done){
-		this.timeout(3000);
+		this.timeout(25000);
 		client.get('/api/weather_proxy', function(err, req, res, data){
 			assert.ifError(err);
 			assert.object(data);
-			console.log(JSON.stringify(data));
 			done();
 		});
 	});
 	
 	it('POST of /api/weather_proxy should retun the weather for Chicago.',function(done){
-		client.post('/api/weather_proxy/USWeather/USWeatherSoap/GetWeatherReport', {"input":{"ZipCode":"60657"}}, function(err, req, res, data){
+        this.timeout(25000);
+		client.post('/api/weather_proxy/USWeather/USWeatherSoap12/GetWeatherReport', {"input":{"ZipCode":"60657"}}, function(err, req, res, data){
 			assert.ifError(err);
 			assert.object(data);
-			console.log(JSON.stringify(data));
 			done();
 		});
 	});
@@ -89,7 +92,7 @@ describe('soap resource REST API tests', function() {
 	});    
 	
 	it('GET of /api/currency_proxy should retun the WSDL in JSON.',function(done){
-		this.timeout(3000);
+		this.timeout(25000);
 		client.get('/api/currency_proxy', function(err, req, res, data){
 			assert.ifError(err);
 			assert.object(data);

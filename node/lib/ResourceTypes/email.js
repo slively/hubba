@@ -2,51 +2,45 @@
 
 var nodemailer = require("nodemailer");
 
-/*
-	Handler is the same for all verbs.
-	It simply checks to see if the route matches the current resource and then returns the list of children on a GET.
-	Any route that ends in an area that isn't a get will return a 405 METHOD NOT ALLOWED.
-	If the route has more children, then it will resolve the childs route.
-*/
-
-var createTransport = function(resource){
-	
-};
-
 var updateTransport = function(resource){
-	
-};
+    var opts = {
+        host: resource.ResourceType.configuration.host.value, // hostname
+        secureConnection: resource.ResourceType.configuration.ssl.value, // use SSL
+        port: resource.ResourceType.configuration.port.value // port for secure SMTP
+    };
 
-var closeTransport = function(resource){
-	
-};
+    if (resource.ResourceType.configuration.username.value.length){
+        opts.auth = {
+            user: resource.ResourceType.configuration.username.value,
+            pass: resource.ResourceType.configuration.password.value
+        }
+        opts.requiresAuth = true;
+    }
 
+    resource.ResourceType.transport = nodemailer.createTransport("SMTP",opts);
+};
 
 var sendEmail = function(resource, req, res){
-	if (req.params.length){
-		var childUrl = req.params[0];
-		if (childUrl.length && resource.children[childUrl]){
-			req.params.shift();
-			resource.children[childUrl].resolve(req,res);
-		} else {
-			res.send(404,{message:'area ' +resource.name+ ' has no child called ' + childUrl});
-		}
-	} else if (req.method == "GET") {
-		res.send(200,resource.children);
-	} else {
-		res.send(405);
-	}
+    resource.ResourceType.transport.sendMail(req.body, function(err, responseStatus){
+        if(err){
+            throw err;
+        }
+
+        res.send(200,responseStatus.message);
+    });
 };
 
 exports.ResourceType = {
 	name: 'email',
 	label: 'Email',
-	config: {
+	configuration: {
 		host: { inputType: 'text', placeholder:'Enter the email host (ex./ smtp.gmail.com)', value: '', required: true },
 		port: { inputType: 'number', placeholder:'Enter a port for the connection.', value: 463 },
 		ssl: { inputType: 'checkbox', value: true, header: 'Check to use SSL' },
 		username: { inputType: 'text', placeholder:'Enter a username for authentication.', value: '' },
 		password: { inputType: 'password', placeholder:'Enter a password for authentication.', value: '' }
 	},
-	POST: sendEmail,
+    RESOURCE_CREATE: updateTransport,
+    RESOURCE_UPDATE: updateTransport,
+	POST: sendEmail
 };

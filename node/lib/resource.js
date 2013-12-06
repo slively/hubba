@@ -17,7 +17,7 @@ function Resource(opts){
 	
 	assert.string(o.name, 'Resource name');
 	assert.string(o.type, 'Resource type');
-	
+
 	// TODO check for valid URL names.
 	if (o.name.length == 0){
 		throw 'A Resource must have a name of length > 0.'
@@ -32,19 +32,25 @@ function Resource(opts){
 	} else if (opts.versions){
 		assert.array(opts.versions,'Resource versions');
 	}
-	
+
 	this.id = ++idPool;
 	this.parentId = o.parentId || undefined;
+    if (this.parentId){
+        this.parent = findById(this.parentId);
+    }
 	this.name = o.name;
 	this.versions = ['1.0.0'] || opts.versions;
 	this.children = o.children || {};
 	this.type = o.type;
-	this.ResourceType = new ResourceType(o.type);
+	this.ResourceType = new ResourceType(o.type, o.configuration);
 	this.tests = o.tests || [];
-	this.ResourceType.RESOURCE_CREATE.call(this,this);
 	this.updatePath();
+    this.updateConfiguration(opts.configuration);
+    this.ResourceType.RESOURCE_CREATE.call(this,this);
 	ResourcesStore.push(this);
 };
+
+
 
 Resource.prototype.updatePath = function(opts){
 	var opts = opts || {}, p = "", r = this;
@@ -56,10 +62,10 @@ Resource.prototype.updatePath = function(opts){
 	
 	// add root resource name (it does not have a parentId)
 	this.path = "/" + r.name + p;
-	
-	if (this.ResourceType.wildcardChildRoute === true){
-		this.path += "/*";
-	}
+
+    if (this.ResourceType.wildcardChildRoute === true){
+        this.path+='(.*)';
+    }
 	
 	// update children with new path
 	for ( var key in this.children ){
@@ -82,7 +88,7 @@ Resource.prototype.deleteServerRoute = function(){
 
 Resource.prototype.updateSeverRoute = function(opts){
 	var opts = opts || {};
-	
+
 	var self = this,
 		callback = function(req,res){
 			self.handler.call(self,req,res);
@@ -96,7 +102,7 @@ Resource.prototype.updateSeverRoute = function(opts){
 	
 	Server.post({
 		name:'post'+this.id,
-		path:this.path,
+		path: this.path,
 		version:this.curVersion
 	},callback);
 	
@@ -117,12 +123,34 @@ Resource.prototype.updateSeverRoute = function(opts){
 		path:this.path,
 		version:this.curVersion
 	},callback);
-	
+};
+
+Resource.prototype.updateConfiguration = function(cfg){
+    if (typeof cfg !== "undefined"){
+        // configuration must be an object
+        assert.object(cfg, 'configuration');
+
+        for ( var key in cfg ){
+
+            // only add configuration items defined in the resource type
+            if (typeof this.ResourceType.configuration[key] == 'undefined'){
+                throw "This resource type does not have a configuration item called " + key +".";
+
+                // make sure they have the same type
+                //	TODO, check more specifically for types like email, number ranges, colors, etc...
+            } else if ( Object.prototype.toString.call(this.ResourceType.configuration[key].value) != Object.prototype.toString.call(cfg[key]) ){
+                throw key + " must be of type " + Object.prototype.toString.call(this.ResourceType.configuration[key].value) + ", instead is of type " + Object.prototype.toString.call(cfg[key]) + ".";
+
+            } else {
+                this.ResourceType.configuration[key].value = cfg[key];
+            }
+        }
+    }
 };
 
 Resource.prototype.update = function(opts){
 	var opts = opts || {};
-	
+
 	// If name changes, check first for duplicate, then delete current reference in parent object and add new reference
 	if (opts.name && opts.name != this.name){
 		var p = findById(this.parentId);
@@ -135,39 +163,28 @@ Resource.prototype.update = function(opts){
 		this.name = opts.name;
 		this.updatePath();
 	}
-	
+
+    // if parentId changes, check to make sure new parent exists, and doesn't already have a child of the same name.
+    if(opts.parentId && opts.parentId != this.parentId){
+        var p = findById(opts.parentId), op = this.parent;
+        p.addChild(this);
+        this.parentId = p.id;
+        this.parent = p;
+        delete op.children[this.name];
+    }
+
 	// if a type is passed in and it's different then the current type
-	if (opts.type && opts.type != this.type){	
+	if (opts.type && opts.type != this.type){
 		this.type = opts.type;
 		this.ResourceType.RESOURCE_DELETE(this);
 		this.ResourceType = new ResourceType(opts.type);
 	}
-	
-	// configuration has been updated, this can still happen after updating the resource type
-	//	This could cause a conflict if people don't use the API correctly and update the type but send an old configuration.
-	//	Will want good documentation on this.
-	if (opts.configuration){
-		
-		// configuration must be an object
-		assert.object(opts.configuration, 'configuration');
-		
-		for ( var key in opts.configuration ){
 
-			// only add configuration items defined in the resource type
-			if (typeof this.ResourceType.configuration[key] == 'undefined'){
-				throw "This resource type does not have a configuration item called " + key +".";
-				
-			// make sure they have the same type
-			//	TODO, check more specifically for types like email, number ranges, colors, etc...
-			} else if ( Object.prototype.toString.call(this.ResourceType.configuration[key].value) != Object.prototype.toString.call(opts.configuration[key]) ){
-				throw key + " must be of type " + Object.prototype.toString.call(this.ResourceType.configuration[key].value) + ", instead is of type " + Object.prototype.toString.call(opts.configuration[key]) + ".";
-				
-			} else {
-				this.ResourceType.configuration[key].value = opts.configuration[key];
-			}
-		}
-	}
-	
+    // configuration has been updated, this can still happen after updating the resource type
+    //	This could cause a conflict if people don't use the API correctly and update the type but send an old configuration.
+    //	Will want good documentation on this.
+    this.updateConfiguration(opts.configuration);
+
 	// Call resource type update function after the configuration is all updated.
 	this.ResourceType.RESOURCE_UPDATE.call(this,this);
 	

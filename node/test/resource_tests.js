@@ -2,6 +2,7 @@ var assert = require("assert-plus"),
 	Resource = require('../lib/resource'),
 	root,
 	area_child,
+    root_area_child2,
 	area_child2,
 	server = require('../lib/server').startup({
 		port: 8081
@@ -36,6 +37,14 @@ describe('Resource NODE API tests', function() {
 		assert.equal('/api/area_child',root.children.area_child.path,"Path is incorrect, should be /api/area_child, but is " + root.children.area_child.path);
 		done();
 	});
+
+    it('root resource should add a second child resource of type area with name "root_area_child2',function(done){
+        root_area_child2 = root.addChild({ name : 'root_area_child2', type: 'area', parentId: root.id });
+        assert.equal('root_area_child2',root.children.root_area_child2.name,"Area_child has the wrong name, supposed to be 'area_child', is actually " + root.children.root_area_child2.type);
+        assert.equal('area',root.children.root_area_child2.type,"Area_child has the wrong type, supposed to be 'area' is actually " + root.children.root_area_child2.type);
+        assert.equal('/api/root_area_child2',root.children.root_area_child2.path,"Path is incorrect, should be /api/area_child, but is " + root.children.root_area_child2.path);
+        done();
+    });
 	
 	it('area_child resource should add a child resource of type area with name "area_child2"', function(done) {
 		area_child2 = area_child.addChild({ name : 'area_child2', type: 'area' });
@@ -57,6 +66,27 @@ describe('Resource NODE API tests', function() {
 		assert.equal(area_child2.type,temp.type,"Retrieved resource has different type!");
 		done();
 	});
+
+    it('area_child2 should be moved under the parent root_area_child2', function(done){
+        root.children.area_child.children.area_child2.update({
+            parentId: root_area_child2.id
+        });
+
+        assert.equal(root_area_child2.id,root.children.root_area_child2.children.area_child2.parentId);
+        assert.equal(root_area_child2.id,root.children.root_area_child2.children.area_child2.parent.id);
+        done();
+    });
+
+    it('area_child2 should be moved back under the parent area_child', function(done){
+        root.children.root_area_child2.children.area_child2.update({
+            parentId: area_child.id
+        });
+
+        assert.equal(area_child.id,root.children.area_child.children.area_child2.parentId);
+        assert.equal(area_child.id,root.children.area_child.children.area_child2.parent.id);
+        area_child2 = root.children.area_child.children.area_child2;
+        done();
+    });
 	
 	it('area_child should be renamed to area_child_r and the path should update for itself and all children.',function(done){
 		root.children.area_child.update({ name: 'area_child_r' });
@@ -96,5 +126,10 @@ describe('Resource NODE API tests', function() {
 		assert.equal("undefined", typeof root.children.area_child_r);
 		done();
 	});	
-	
+
+    /*
+        TODO
+        test to change resource's parent
+
+     */
 });
