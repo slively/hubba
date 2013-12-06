@@ -1,0 +1,31 @@
+{
+    "name": "hubba",
+    "preferGlobal": false,
+    "author": "Scott lively <scott.lively@gmail.com>",
+    "description": "A node based services bus that allows for browser based editing of resources.",
+    "contributors": [],
+    "main": "./lib",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/slively/hubba.git"
+    },
+    "keywords": [
+        "nodejs",
+        "service bus"
+    ],
+    "dependencies" : {
+        "restify"   :  "*",
+        "nodemailer"   :  "*",
+        "soap"   :  "*",
+        "request"   :  "*",
+        "assert-plus"   :  "*"
+    },
+    "devDependencies": {
+        "mocha"    :  "*"
+    },
+    "license": "MIT",
+    "engines": {
+        "node": ">=0.9"
+    }
+}
+
