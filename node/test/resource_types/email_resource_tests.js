@@ -1,4 +1,6 @@
-var assert = require("assert");
+"use strict";
+
+var assert = require("assert-plus");
 
 describe('email resource', function() {
     var server = require('../../lib/server').startup({
