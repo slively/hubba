@@ -63,6 +63,8 @@ Resource.prototype.updatePath = function(opts){
 	// add root resource name (it does not have a parentId)
 	this.path = "/" + r.name + p;
 
+    // TODO: have a displayPath as well?
+
     if (this.ResourceType.wildcardChildRoute === true){
         this.path+='(.*)';
     }
