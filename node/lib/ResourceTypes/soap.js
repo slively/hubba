@@ -53,7 +53,7 @@ function getHandler(resource,req,res){
 };
 
 function postHandler(resource,req,res){
-    var reqResources = req.url.replace(/\?.*$/,'').split('/'), reqSubResources, cur, i = 0;
+    var reqResources = req.url.replace(/\?.*$/,'').split('/'), reqSubResources, i = 0;
 
     while(reqResources[i] != resource.name && i < reqResources.length){
         i++;
