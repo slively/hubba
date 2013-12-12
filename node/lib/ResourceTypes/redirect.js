@@ -2,7 +2,8 @@
 
 function redirect(resource,req,res){
     res.header('Location',resource.ResourceType.configuration.url.value);
-    res.send(301);
+    res.send(301,{url:resource.ResourceType.configuration.url.value
+    });
 };
 
 exports.ResourceType = {
