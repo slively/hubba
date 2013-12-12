@@ -98,7 +98,7 @@ describe('rest resource REST API tests', function() {
 	});
 	
 	// add new rest resource
-	it('POST new area resource called "rest_resource" to /hubba/api/resources should return a 200 response.', function(done) {
+	it('POST new rest resource called "rest_resource" to /hubba/api/resources should return a 200 response.', function(done) {
 	
 		client.post('/hubba/api/resources', {
 			"parentId": rootId,
