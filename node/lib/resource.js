@@ -1,161 +1,54 @@
 "use strict";
 
-var ResourceType = require('./resource_type').ResourceType,
-	idPool = 1,
-	ResourcesStore = [],
-	assert = require('assert-plus'),
-	rootResource,
-	Server;
+var assert = require('assert-plus'),
+    util = require("util"),
+    events = require("events");
 
 /*
-cache the configuration and register the routes.
-each resource owns its own route handler
-set the routes as a resource is created or updated.
+    Simple tree node for a ResourceTree that inherits from EventEmitter.
+    Fires events when initialized, updated, and destroyed.
+    Core attributes for a resource exist here.
+    Has basic functions for initialization, update, Destroy, addChild, and removeChild.
+    Anything related to keeping the tree correct and stored in the database is in ResourceTree.js
+    Every ResourceType inherits from this class.
+    Anything related to the configuration and the toJSON function is in ResourceTypeFactory.js
 */
+
 function Resource(opts){
+    events.EventEmitter.call(this);
+
 	var o = opts || {};
-	
-	assert.string(o.name, 'Resource name');
-	assert.string(o.type, 'Resource type');
 
-	// TODO check for valid URL names.
-	if (o.name.length == 0){
-		throw 'A Resource must have a name of length > 0.'
-	} else if (o.type.length == 0){
-		throw 'A  Resource must have a type of length > 0.';
-	} else if (o.isRoot !== true){
-		try{
-			findById(o.parentId);
-		} catch(e) {
-			throw "Could not find parentId " + o.parentId;
-		}
-	} else if (opts.versions){
-		assert.array(opts.versions,'Resource versions');
-	}
-
-	this.id = ++idPool;
-	this.parentId = o.parentId || undefined;
-    if (this.parentId){
-        this.parent = findById(this.parentId);
+    if (typeof o.id === 'undefined'){
+        throw 'Resource must have an id.';
     }
+
+    ResourceValidator(opts);
+
+    if (o.isRoot !== true){
+        this.parent = o.parent;
+        this.parentId = o.parent.id;
+    }
+
+	this.id = o.id;
+    this.isRoot = o.isRoot;
 	this.name = o.name;
-	this.versions = ['1.0.0'] || opts.versions;
+	this.versions = ['1.0.0'] || o.versions;
 	this.children = o.children || {};
-	this.type = o.type;
-	this.ResourceType = new ResourceType(o.type, o.configuration);
-	this.tests = o.tests || [];
-	this.updatePath();
-    this.updateConfiguration(opts.configuration);
-    this.ResourceType.RESOURCE_CREATE.call(this,this);
-	ResourcesStore.push(this);
+    this.childRoutes = o.childRoutes;
+    this.updatePath();
+    this.emit('init');
 };
 
+util.inherits(Resource, events.EventEmitter);
 
-
-Resource.prototype.updatePath = function(opts){
-	var opts = opts || {}, p = "", r = this;
-	
-	while (r.parentId){
-		p = "/" + r.name + p;
-		r = findById(r.parentId);
-	}
-	
-	// add root resource name (it does not have a parentId)
-	this.path = "/" + r.name + p;
-
-    // TODO: have a displayPath as well?
-
-    if (this.ResourceType.wildcardChildRoute === true){
-        this.path+='(.*)';
-    }
-	
-	// update children with new path
-	for ( var key in this.children ){
-		this.children[key].updatePath();
-	}
-
-	this.deleteServerRoute();
-	this.updateSeverRoute(opts);
-};
-
-Resource.prototype.deleteServerRoute = function(){
-	if (Server.routes['get'+this.id]){
-		Server.rm('get'+this.id);
-		Server.rm('post'+this.id);
-		Server.rm('put'+this.id);
-		Server.rm('patch'+this.id);
-		Server.rm('del'+this.id);
-	}
-}
-
-Resource.prototype.updateSeverRoute = function(opts){
-	var opts = opts || {};
-
-	var self = this,
-		callback = function(req,res){
-			self.handler.call(self,req,res);
-		};
-
-	Server.get({
-		name:'get'+this.id,
-		path:this.path,
-		version:this.curVersion
-	},callback);
-	
-	Server.post({
-		name:'post'+this.id,
-		path: this.path,
-		version:this.curVersion
-	},callback);
-	
-	Server.put({
-		name:'put'+this.id,
-		path:this.path,
-		version:this.curVersion
-	},callback);
-	
-	Server.patch({
-		name:'patch'+this.id,
-		path:this.path,
-		version:this.curVersion
-	},callback);
-	
-	Server.del({
-		name:'del'+this.id,
-		path:this.path,
-		version:this.curVersion
-	},callback);
-};
-
-Resource.prototype.updateConfiguration = function(cfg){
-    if (typeof cfg !== "undefined"){
-        // configuration must be an object
-        assert.object(cfg, 'configuration');
-
-        for ( var key in cfg ){
-
-            // only add configuration items defined in the resource type
-            if (typeof this.ResourceType.configuration[key] == 'undefined'){
-                throw "This resource type does not have a configuration item called " + key +".";
-
-                // make sure they have the same type
-                //	TODO, check more specifically for types like email, number ranges, colors, etc...
-            } else if ( Object.prototype.toString.call(this.ResourceType.configuration[key].value) != Object.prototype.toString.call(cfg[key]) ){
-                throw key + " must be of type " + Object.prototype.toString.call(this.ResourceType.configuration[key].value) + ", instead is of type " + Object.prototype.toString.call(cfg[key]) + ".";
-
-            } else {
-                this.ResourceType.configuration[key].value = cfg[key];
-            }
-        }
-    }
-};
 
 Resource.prototype.update = function(opts){
 	var opts = opts || {};
 
 	// If name changes, check first for duplicate, then delete current reference in parent object and add new reference
-	if (opts.name && opts.name != this.name){
-		var p = findById(this.parentId);
+	if (!this.isRoot && opts.name && opts.name != this.name){
+		var p = this.parent;
 		if (p.children[opts.name] != undefined){
 			throw 'There is already a resource with the same parent and the same name.';
 		}
@@ -163,7 +56,8 @@ Resource.prototype.update = function(opts){
 		p.children[opts.name] = this;
 		delete p.children[this.name];
 		this.name = opts.name;
-		this.updatePath();
+		//this.updatePath();
+        this.emit('update:path');
 	}
 
     // if parentId changes, check to make sure new parent exists, and doesn't already have a child of the same name.
@@ -173,46 +67,67 @@ Resource.prototype.update = function(opts){
         this.parentId = p.id;
         this.parent = p;
         delete op.children[this.name];
+        this.isRoot = false;
     }
 
 	// if a type is passed in and it's different then the current type
-	if (opts.type && opts.type != this.type){
+	/*if (opts.type && opts.type != this.type){
 		this.type = opts.type;
 		this.ResourceType.RESOURCE_DELETE(this);
 		this.ResourceType = new ResourceType(opts.type);
-	}
+	}*/
 
     // configuration has been updated, this can still happen after updating the resource type
     //	This could cause a conflict if people don't use the API correctly and update the type but send an old configuration.
     //	Will want good documentation on this.
-    this.updateConfiguration(opts.configuration);
+    //this.updateConfiguration(opts.configuration);
 
 	// Call resource type update function after the configuration is all updated.
-	this.ResourceType.RESOURCE_UPDATE.call(this,this);
-	
+	//this.ResourceType.RESOURCE_UPDATE.call(this,this);
+    this.emit('update');
 	return this;
 };
 
-Resource.prototype.del = function(){
-	if (typeof this.parentId === undefined){
-		throw 'Cannot delete the root resource.';
-	} else if (Object.keys(this.children).length > 0){
+Resource.prototype.updatePath = function(opts){
+    var opts = opts || {}, p = "", r = this;
+
+    while (r.parent){
+        p = "/" + r.name + p;
+        r = r.parent;
+    }
+
+    // add root resource name (it does not have a parentId)
+    this.path = "/" + r.name + p;
+
+    // TODO: have a displayPath as well?
+
+    if (this.childRoutes === true){
+        this.path+='(.*)';
+    }
+};
+
+Resource.prototype.destroy = function(){
+	if (Object.keys(this.children).length > 0){
 		throw 'You must delete the children of a resource, before deleting a resource.';
 	}
 	
 	// call custom resource delete code
-	this.ResourceType.RESOURCE_DELETE(this);
+	//
+	// this.ResourceType.RESOURCE_DELETE(this);
 	
 	// remove from store -- will be a file/database at some point
-	for ( var i in ResourcesStore ){
+	/*for ( var i in ResourcesStore ){
 		if (ResourcesStore[i].id == this.id){
 			ResourcesStore.splice(i,1);
 			break;
 		}
-	}
-	this.deleteServerRoute();
+	}*/
+
+
+	//this.deleteServerRoute();
 	// remove reference from parent (no longer accessible now)
-	findById(this.parentId).removeChild(this.name);
+	//findById(this.parentId).removeChild(this.name);
+    this.emit('destroy');
 }
 
 Resource.prototype.addChild = function(opts){
@@ -235,59 +150,97 @@ Resource.prototype.removeChild = function(name){
 	return this;
 };
 
-Resource.prototype.toJson = function(opts){
-	var opts = opts || {};
-	var configuration = {};
-	for ( var key in this.ResourceType.configuration ){
-		configuration[key] = this.ResourceType.configuration[key].value;
-	}
 
-	var o = {
-		id: this.id,
-		name: this.name,
-		type: this.ResourceType.name,
-		typeLabel: this.ResourceType.label,
-		configuration: configuration,
-		parentId: this.parentId,
-		path:this.path
-	};
-	
-	if (opts.includeChildren === true){
-		o.children = {};
-		for ( var i in this.children ){
-			o.children[i] = this.children[i].toJson({includeChildren:true});
-		}
-	}
-	
-	return o;
+function ResourceValidator(opts){
+    var o = opts || {};
+
+    assert.string(o.name, 'Resource name');
+    assert.optionalBool(o.isRoot);
+    assert.optionalObject(o.parent);
+    assert.optionalArrayOfString(o.versions,'Resource versions');
+
+    // TODO check for valid URL names.
+    if (o.name.length == 0){
+        throw 'Resource must have a name of length > 0.';
+    } else if (o.isRoot !== true){
+        if (typeof o.parent === 'undefined'){
+            throw 'Resource must either be a root or have a parent.';
+        }
+    } else if (o.isRoot === true && typeof o.parent !== 'undefined'){
+        throw 'Resource cannot be a root and have a parent.';
+    }
+
+    return true;
 };
 
-Resource.prototype.handler = function(req, res){
-	this.ResourceType[req.method].call(this,this,req,res);
-};
+exports.Resource = Resource;
+exports.ResourceValidator = ResourceValidator;
 
-var findById = function(id){
-	for ( var i in ResourcesStore){
-		if (ResourcesStore[i].id == id)
-			return ResourcesStore[i];
-	}
-	
-	throw 'Resource ' + id + ' not found.';
-};
 
-exports.findById = findById;
-exports.rootResource = rootResource;
 
-exports.generateResources = function(configLocation){
-	require('./resource_type').refreshResourceTypes(configLocation);
-	
-	if (configLocation){
-		console.log('TODO: read from location.');
-	} else {
-		return rootResource = new Resource({name: 'api', type: 'area', isRoot: true});
-	}
-};
 
-exports.registerServer = function(s){
-	Server = s;
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+Resource.prototype.deleteServerRoute = function(){
+    if (Server.routes['get'+this.id]){
+        Server.rm('get'+this.id);
+        Server.rm('post'+this.id);
+        Server.rm('put'+this.id);
+        Server.rm('patch'+this.id);
+        Server.rm('del'+this.id);
+    }
 }
+
+Resource.prototype.updateSeverRoute = function(opts){
+    var opts = opts || {};
+
+    var self = this,
+        callback = function(req,res){
+            self.handler.call(self,req,res);
+        };
+
+    Server.get({
+        name:'get'+this.id,
+        path:this.path,
+        version:this.curVersion
+    },callback);
+
+    Server.post({
+        name:'post'+this.id,
+        path: this.path,
+        version:this.curVersion
+    },callback);
+
+    Server.put({
+        name:'put'+this.id,
+        path:this.path,
+        version:this.curVersion
+    },callback);
+
+    Server.patch({
+        name:'patch'+this.id,
+        path:this.path,
+        version:this.curVersion
+    },callback);
+
+    Server.del({
+        name:'del'+this.id,
+        path:this.path,
+        version:this.curVersion
+    },callback);
+};
+
+*/
