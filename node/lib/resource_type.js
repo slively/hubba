@@ -56,24 +56,15 @@ var registerResourceType = function (type, cfg){
 	return t;
 };
 
-// if options are passed in we register a new resource type
-//	otherwise we call the contrusctor the of the type passed in.
+
 function ResourceType(type, options){
-	
-	// if options are passed in we are creating a new resource type
-	/*if (typeof options == 'object'){
-		return registerResourceType(type, options);
 		
-	// else we are returning an already created resource type if it exists
-	} else { */
-		
-		if (typeof registeredResourceTypes[type] === 'undefined')
-			throw 'Resource Type "' +type+ '" is not defined!';
-		else {
-			return new registeredResourceTypes[type](options);
-		}
-		
-	//}
+    if (typeof registeredResourceTypes[type] === 'undefined')
+        throw 'Resource Type "' +type+ '" is not defined!';
+    else {
+        return new registeredResourceTypes[type](options);
+    }
+
 };
 
 exports.ResourceType = ResourceType;

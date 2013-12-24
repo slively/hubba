@@ -1,17 +1,15 @@
 var assert = require("assert-plus"),
-	Resource = require('../lib/resource'),
+    restify = require("restify"),
+    ResourceTree = new require('../../../lib/resource').ResourceTree(),
 	root,
 	area_child,
     root_area_child2,
-	area_child2,
-	server = require('../lib/server').startup({
-		port: 8081
-	});
+	area_child2;
 
 describe('Resource NODE API tests', function() {
 	
 	it(' should generate a root Resource.', function(done){
-		root = Resource.generateResources();
+		root = ResourceTree.root;
 		done();
 	});
 	
