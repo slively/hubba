@@ -30,7 +30,7 @@ describe('ResourceStore (file)', function(){
     });
 
     it('should delete the database file woo.db',function(done){
-        rs.cleanStore();
+        rs.destroyStore();
         fs.exists('../../../lib/sqliteDB/woo.db', function(exists){
             assert.ok(!exists);
             done();
@@ -116,7 +116,7 @@ describe('ResourceStore (file)', function(){
     });
 
     it('should delete the database file hubba.db',function(done){
-        rs.cleanStore();
+        rs.destroyStore();
         fs.exists(__dirname+'/../../../lib/sqliteDB/hubba.db', function(exists){
             assert.ok(!exists);
             done();

@@ -16,11 +16,11 @@ exports.ResourceType = {
 	name: 'controller',
 	label: 'Controller',
 	configuration: {
-		get: { value: "" },
-		post: { value: "" },
-		put: { value: "" },
-		patch: { value: "" },
-		del: { value: "" }
+		get: { inputType: 'text', value: "" },
+		post: { inputType: 'text', value: "" },
+		put: { inputType: 'text', value: "" },
+		patch: { inputType: 'text', value: "" },
+		del: { inputType: 'text', value: "" }
 	},
 	RESOURCE_CREATE: function(){
 		var defaultRes = function(resource,req,res){res.send(405);};

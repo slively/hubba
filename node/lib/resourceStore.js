@@ -31,7 +31,7 @@ function SQLiteStore(opts){
     }
 
     this.find = function find(id,cb){
-        assert.number(id);
+        assert.number(id,'Resource id');
 
         if (connecting){
             var self = this;
@@ -68,13 +68,9 @@ function SQLiteStore(opts){
             db.all('select * from resources;',function(err,result){
                 var r = [];
 
-                if (result.length === 0){
-                    err =  new Error("No resources found.");
-                } else {
-                    for (var i = 0; i < result.length; i++){
-                        r.push(JSON.parse(result[i].resource));
-                        r[i].id = result[i].id;
-                    }
+                 for (var i = 0; i < result.length; i++){
+                    r.push(JSON.parse(result[i].resource));
+                    r[i].id = result[i].id;
                 }
 
                 cb(err,r);
@@ -84,7 +80,7 @@ function SQLiteStore(opts){
     };
 
     this.add = function add(resource,cb){
-        assert.object(resource);
+        assert.object(resource,'Resource body');
 
         if (connecting){
             var self = this;
@@ -101,8 +97,8 @@ function SQLiteStore(opts){
     };
 
     this.replace = function replace(resource,cb){
-        assert.object(resource);
-        assert.number(resource.id);
+        assert.object(resource,'Resource body');
+        assert.number(resource.id,'Resource id');
 
         if (connecting){
             var self = this;
@@ -119,7 +115,7 @@ function SQLiteStore(opts){
     };
 
     this.remove = function remove(id,cb){
-        assert.number(id);
+        assert.number(id,'Resource id');
 
         if (connecting){
             var self = this;
@@ -150,7 +146,7 @@ function SQLiteStore(opts){
         return this;
     };
 */
-    this.cleanStore = function cleanStore(){
+    this.destroyStore = function destroyStore(){
         if (o.type === 'file'){
             connecting = true;
             fs.unlinkSync(__dirname+'/sqliteDB/'+name+'.db');
@@ -187,7 +183,7 @@ function ResourceStore(opts){
     this.replace = store.replace;
     this.remove = store.remove;
     //this.nextID = store.nextID;
-    this.cleanStore = store.cleanStore;
+    this.destroyStore = store.destroyStore;
 };
 
 exports.ResourceStore = ResourceStore;

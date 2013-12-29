@@ -61,23 +61,7 @@ describe('ResourceStore (memory)', function(){
         })
     });
 
-    it ('should create a second resource.', function(done){
-        r.add({name:'test2'},function(err,id){
-            assert.ifError(err);
-            assert.ok(id);
-            done();
-        });
-    });
 
-    it ('should find all stored resources.', function(done){
-        r.findAll(function(err,results){
-            assert.ifError(err);
-            assert.equal(2,results.length);
-            assert.equal(1,results[0].id);
-            assert.equal(2,results[1].id);
-            done();
-        });
-    });
 
     it ('should delete the resource with the id ' + rid, function(done){
         r.remove(resource.id,function(err,changes){

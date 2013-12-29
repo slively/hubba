@@ -4,10 +4,7 @@ var assert = require("assert-plus");
     Any test with a large timeout is dependant on the external API, which is terribly slow.
  */
 
-describe('soap resource REST API tests', function() {
-	require('../../lib/server').startup({
-		port: 8081
-	});
+describe('Soap Resource', function() {
 	
 	var rootId, id, client = require('restify').createJsonClient({
 	    version: '*',
@@ -15,7 +12,7 @@ describe('soap resource REST API tests', function() {
 	});
 	
 	it('GET /hubba/api/resources Root id should return a 200 response', function(done) {
-		client.get('/hubba/api/resources', function(err, req, res, data) {
+		client.get('/hubba/api/resources/root', function(err, req, res, data) {
 			assert.ifError(err);
 			rootId = data.id;
 			done();

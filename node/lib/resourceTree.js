@@ -1,11 +1,15 @@
 var assert = require('assert-plus'),
-    rResourceValidator = require('./resource').ResourceValidator,
     rResourceTypesLoader = require('./resourceTypesLoader').ResourceTypesLoader,
-    rResourceStore = require('./resourceStore').ResourceStore;
+    rResourceStore = require('./resourceStore').ResourceStore,
+    util = require("util"),
+    events = require("events");
 
 /*
     maintains tree structure of resources, and consistency with storage mechanism (file/db/memory)
     exposes functions to find, add, update, and remove resources
+    proxies all events from each resource
+    fires 'update:path' event with whenever the path of a resource successfully changes.
+    fires 'remove:path' event whenever a resource is successfully removed.
 
     PRIVATE:
         root (area Resource)
@@ -14,8 +18,8 @@ var assert = require('assert-plus'),
 
     PUBLIC:
         constructor options
-            path to resourceTypes folder
-            type of resourceStore to create
+            resourceTypesPath - path to resourceTypes folder
+            store - options of resourceStore to create
 
         getTypes // returns JSON representation of all available ResourceTypes
         getRoot() // returns JSON representation of the root resource
@@ -25,19 +29,23 @@ var assert = require('assert-plus'),
         remove(id) // returns true or throws an error
  */
 function ResourceTree(opts,mocks){
+
+    events.EventEmitter.call(this);
+
     var opts = opts || {},
         mocks = mocks || {},
-        path = opts.path,
-        store = opts.store || 'memory',
-        ResourceValidator = mocks.ResourceValidator || rResourceValidator,
+        path = opts.resourceTypesPath,
+        store = opts.store || {type:'file'},
         ResourceTypesLoader = mocks.ResourceTypesLoader || rResourceTypesLoader,
         ResourceStore = mocks.ResourceStore || rResourceStore,
-        resourceFactories = new ResourceTypesLoader({path:opts.path}),
-        store = new ResourceStore({type:opts.store}),
+        resourceFactories = new ResourceTypesLoader({path:path}),
+        store = new ResourceStore(store),
         resources = {},
         resourcesParentIDHash = {},
         initializing = true,
-        root;// = new resourceTypes['area']({isRoot:true,name:'api'});
+        self = this,
+        root = null,
+        fQueue = [];
 
     this.getTypes = function getTypes(){
         var t = [];
@@ -49,11 +57,32 @@ function ResourceTree(opts,mocks){
         return t;
     };
 
-    this.getRoot = function getRoot(){
-        return root.toJSON();
+    this.getRoot = function(cb){
+        if (initializing){
+            fQueue.push({name:'getRoot',args:[cb]});
+        } else {
+            getRoot(cb);
+        }
+        return this;
+    };
+
+    function getRoot(cb){
+        if (typeof cb === 'function'){
+            cb(undefined,root.toJSON());
+        }
     };
 
     this.find = function(id,cb){
+        if (initializing){
+            fQueue.push({name:'find',args:[id,cb]});
+        } else {
+            find(id,cb);
+        }
+
+        return this;
+    };
+
+    function find(id,cb){
         if (resources[id]){
             cb(undefined,resources[id].toJSON());
         } else {
@@ -63,31 +92,108 @@ function ResourceTree(opts,mocks){
     };
 
     this.findAll = function(cb){
+        if (initializing){
+            fQueue.push({name:'findAll',args:[cb]});
+        } else {
+            findAll(cb);
+        }
+        return this;
+    };
+
+    function findAll(cb){
         var r = [];
 
-        resources.forEach(function(r){
-            r.push(r.toJSON());
-        });
+        for (var key in resources){
+            r.push(resources[key].toJSON());
+        }
 
         cb(undefined,r);
 
         return this;
     };
 
-    this.add = function add(resource,cb){
-
-        if(ResourceValidator(resource)){
-            store.add(resource,function(err,result){
-                if(err)throw err;
-                resources[result.id] = resourceFactories[result.type].createResource(result);
-                cb(undefined,resources[result.id].toJSON());
-            });
+    this.add = function(resource,cb){
+        if (initializing){
+            fQueue.push({name:'add',args:[resource,cb]});
+        } else {
+            add(resource,cb);
         }
+        return this;
+    };
+
+    function add(resource,cb){
+        var temp;
+
+        if (resource.isRoot){
+            if (root != null ){
+                cb(new Error('Cannot add another root resource, one already exists.'));
+                return;
+            }
+        } else if (typeof resourceFactories[resource.type] === 'undefined'){
+            cb(new Error('Resource type ' + resource.type + ' is invalid.'));
+            return;
+        } else {
+            if (resource.parentId === undefined){
+                cb(new Error('A non-root resource must define a parentId.'));
+                return;
+            } else if (resources[resource.parentId] === undefined){
+                cb(new Error('Parent resource with id ' + resource.parentId + 'does not exist.'));
+                return;
+            }
+
+            resource.parent = resources[resource.parentId];
+
+        }
+
+        try {
+            temp = resourceFactories[resource.type].createResource(resource);
+        } catch(e){
+            cb(e);
+            return;
+        }
+
+        store.add(resource,function(err,ID){
+            if(err)throw err;
+            temp.id = ID;
+            resources[temp.id] = temp;
+
+            // resource saved successfully, emit an update:path event to register the routes
+            //  with the server.
+            self.emit('update:path',{
+                id:temp.id,
+                path:resources[temp.id].path,
+                http:resources[temp.id].http
+            });
+
+            // whenever the path changes in the future notify the server.
+            resources[temp.id].on('update:path',function(){
+                self.emit('update:path',{
+                    id:temp.id,
+                    path:resources[temp.id].path,
+                    http:resources[temp.id].http
+                });
+            });
+
+            if (resources[temp.id].isRoot){
+                root = resources[temp.id];
+            }
+
+            cb(undefined,resources[temp.id].toJSON());
+        });
 
         return this;
     };
 
-    this.update = function update(id,resource,cb){
+    this.update = function(id,resource,cb){
+        if (initializing){
+            fQueue.push({name:'update',args:[id,resource,cb]});
+        } else {
+            update(id,resource,cb);
+        }
+        return this;
+    };
+
+    function update(id,resource,cb){
         if (resources[id]){
             try {
                 resources[id].update(resource);
@@ -103,20 +209,67 @@ function ResourceTree(opts,mocks){
         return this;
     };
 
-    this.remove = function remove(id,cb){
+    this.remove = function(id,cb){
+        if (initializing){
+            fQueue.push({name:'remove',args:[id,cb]});
+        } else {
+            remove(id,cb);
+        }
+        return this;
+    };
+
+    function remove(id,cb){
+
         if (resources[id]){
             try {
                 resources[id].destroy();
-                delete resources[id];
-                store.remove(id,function(err,changes){
-                    cb(err,changes);
-                });
             } catch(e){
                 cb(e);
+                return;
             }
+
+            delete resources[id];
+
+            store.remove(id,function(err,changes){
+                self.emit('remove:path',{id:id});
+                cb(err,changes);
+            });
+
         } else {
             cb(new Error('Resource could not be found with id: ' + id));
         }
+        return this;
+    };
+
+
+
+    this.destroy = function destroy(){
+        store.destroyStore();
+        return this;
+    };
+
+    this.getRoutes = function(cb){
+        if (initializing){
+            fQueue.push({name:'getRoutes',args:[cb]});
+        } else {
+            getRoutes(cb);
+        }
+        return this;
+    };
+
+    function getRoutes(cb){
+        var r = [];
+
+        for (var key in resources){
+            r.push({
+                id: resources[key].id,
+                path: resources[key].path,
+                http: resources[key].http
+            });
+        }
+
+        cb(undefined,r);
+
         return this;
     };
 
@@ -126,9 +279,24 @@ function ResourceTree(opts,mocks){
         translate that into a tree.
      */
     function traverseAndInstantiate(parentId){
+
         if (resourcesParentIDHash[parentId]){
             resourcesParentIDHash[parentId].forEach(function(r){
+
+                if (parentId !== undefined){
+                    r.parent = resources[parentId];
+                }
+
                 resources[r.id] = resourceFactories[r.type].createResource(r);
+
+                resources[r.id].on('update:path',function(){
+                    self.emit('update:path',{
+                        id: resources[r.id].id,
+                        path:resources[r.id].path,
+                        http:resources[r.id].http
+                    });
+                });
+
                 if (parentId === undefined){
                     root = resources[r.id];
                 }
@@ -137,19 +305,41 @@ function ResourceTree(opts,mocks){
         }
     };
 
+
     store.findAll(function(err,results){
 
-        // map each of the resources to a hash of parentIds to lists of resources (children).
-        results.forEach(function(r){
-            if (typeof resourcesParentIDHash[r.parentId] === 'undefined'){
-                resourcesParentIDHash[r.parentId] = [];
-            }
-            resourcesParentIDHash[r.parentId].push(r);
-        });
+        if(err)throw err;
 
-        traverseAndInstantiate();
+        if (results.length === 0){
+            // no resources found, create a new root
+            add({name:'api',isRoot:true,type:'area'},function(err,result){
+                if (err) throw err;
+                initializing = false;
+                for (var i in fQueue){
+                    self[fQueue[i].name].apply(this,fQueue[i].args);
+                }
+            });
+        } else {
+            // map each of the resources to a hash of parentIds to lists of resources (children).
+            results.forEach(function(r){
+                if (typeof resourcesParentIDHash[r.parentId] === 'undefined'){
+                    resourcesParentIDHash[r.parentId] = [];
+                }
+                resourcesParentIDHash[r.parentId].push(r);
+            });
+
+            traverseAndInstantiate();
+            initializing = false;
+            for (var i in fQueue){
+                self[fQueue[i].name].apply(this,fQueue[i].args);
+
+            }
+        }
+
     });
 
 };
+
+util.inherits(ResourceTree, events.EventEmitter);
 
 exports.ResourceTree = ResourceTree;

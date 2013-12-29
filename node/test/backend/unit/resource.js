@@ -1,9 +1,11 @@
 var assert= require('assert-plus'),
     Resource = require("../../../lib/resource").Resource,
-    r;
+    r,
+    r2;
 
 describe('Resource', function(){
 
+    /*
     it('should require an id.',function(done){
         assert.throws(
             function() {
@@ -14,13 +16,25 @@ describe('Resource', function(){
 
         done();
     });
+    */
 
     it('should require a name.',function(done){
         assert.throws(
             function() {
                 new Resource({id:1});
             },
-            /Resource name/
+            /Resource must have a name/
+        );
+
+        done();
+    });
+
+    it('should require a valid name.',function(done){
+        assert.throws(
+            function() {
+                new Resource({id:1,name:'*'});
+            },
+            /Resource name can only contain letters/
         );
 
         done();
@@ -50,22 +64,43 @@ describe('Resource', function(){
 
     it ('should be created successfully as a root Resource.', function(done){
         r = new Resource({id:1,name:'test', isRoot: true});
-        assert.equal('test', r.name);
+        assert.equal(r.name, 'test');
         done();
     });
 
     it('should be created successfully with a parentId of 1.',function(done){
-        var t = new Resource({id:1,name:'test', parent:r});
-        assert.equal(1, t.parentId);
+        r2 = new Resource({id:1,name:'test', parent:r});
+        assert.equal(1, r2.parentId);
+        assert.equal(r2.path, '/test/test');
         done();
     });
 
-    it ('should be updated successfully and emit update event.', function(done){
-        r.on('update',function(){
-            assert.equal('test', r.name);
+    it ('should be updated successfully and emit update:path event, should also children paths.', function(done){
+        r.on('update:path',function(){
+            assert.equal(r.name, 'test2');
+            assert.equal(r.path, '/test2');
+            assert.equal(r2.path,'/test2/test');
             done();
         });
         r.update({name:'test2'})
+    });
+
+    it ('should throw an error when trying to destroy because it has a child.', function(done){
+        assert.throws(
+            function(){
+                r.destroy({name:'test2'})
+            },
+            /You must delete the children of a resource, before deleting a resource/
+        );
+        done();
+    });
+
+
+    it ('should destroy the child resource successfully.', function(done){
+        r.children.test.on('destroy',function(){
+            done();
+        });
+        r.children.test.destroy({name:'test2'})
     });
 
     it ('should be destroyed successfully and emit the destroy event.', function(done){
@@ -74,9 +109,5 @@ describe('Resource', function(){
         });
         r.destroy({name:'test2'})
     });
-
-    // TODO
-    //  create resource based off it's own configuration
-    //
 
 });

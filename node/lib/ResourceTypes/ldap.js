@@ -5,5 +5,5 @@
 exports.ResourceType = {
 	name: 'ldap',
 	label: 'LDAP',
-	config: {}
+	configuration: {}
 };

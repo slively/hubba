@@ -1,31 +1,18 @@
-/*
-    maintains list of all possible resource types
-    reads in possible resource types from configuration location
-    exposes JSON representation
-    exposes hash of all resource types for instantiation
-
-    PUBLIC:
-        constructor options
-            configurationLocation (absolute file path, default: __dirname+'/ResourceTypes')
-
-        toJson()
-
-        // modifying these is bad
-        types (hash)
-        configurationLocation (string)
- */
 var assert = require('assert-plus'),
     fs = require('fs'),
     util = require('util'),
-    ResourceTypeFactory = require('./resourceTypeFactory').ResourceTypeFactory;
+    rResourceTypeFactory = require('./resourceTypeFactory').ResourceTypeFactory;
 
-
+/*
+    Takes a path as input and returns a hash of all ResourceTypeFactories created
+    from the .js configuration files.
+ */
 function ResourceTypesLoader(opts,mocks){
     var opts = opts || {},
         mocks = mocks || {},
         self = this,
         types = {},
-        ResourceTypeFactory = mocks.ResourceTypeFactory || ResourceTypeFactory,
+        ResourceTypeFactory = mocks.ResourceTypeFactory || rResourceTypeFactory,
         path = opts.path || __dirname+'/ResourceTypes';
 
     assert.ok(fs.existsSync(path),'ResourceTypesLoader path is not valid: '+path);
@@ -34,17 +21,16 @@ function ResourceTypesLoader(opts,mocks){
         var rtf;
 
         try {
-            rtf = new ResourceTypeFactory({path:file});
+            rtf = new ResourceTypeFactory({path:path+'/'+file});
+            assert.equal(undefined,types[rtf.name],'ResourceType ' + rtf.name + ' already exists. ResourceType names must be unique.');
+            types[rtf.name] = rtf
         } catch (e){
             console.warn('ResourceType File ' + file + ' produced an error when importing: ');
             console.warn(e);
         }
-
-        assert.equal(undefined,types[rtf.name],'ResourceType ' + rtf.name + ' already exists. ResourceType names must be unique.');
-        types[rtf.name] = rtf
     });
 
     return types;
-}
+};
 
 exports.ResourceTypesLoader = ResourceTypesLoader;
