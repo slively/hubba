@@ -22,22 +22,28 @@ exports.ResourceType = {
     init: function(){
         var init = true;
     },
+    validate: function(){
+        var validate = true;
+    },
     update: function(){
         var update = true;
     },
     destroy: function(){
         var destroy = true;
     },
-    GET: function(){
-        var GET = true;
+    GET: function(resource,req,res){
+        res.send('Woo!');
     },
-    POST: function(){
-        var POST = true;
+    POST: function(resource,req,res){
+        res.send('Woo!');
     },
-    PUT: function(){
-        var PUT = true;
+    PUT: function(resource,req,res){
+        res.send('Woo!');
     },
-    DELETE: function(){
-        var DELETE = true;
-    }
+    PATCH: function(resource,req,res){
+        res.send('Woo!');
+    },
+    DELETE: function(resource,req,res){
+        res.send('Woo!');
+    },
 };

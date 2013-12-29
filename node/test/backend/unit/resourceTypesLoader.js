@@ -3,9 +3,10 @@ var assert = require('assert-plus'),
 
 describe('ResourceTypesLoader', function(){
 
-    var mockResourceTypeFactory = function(opts){
-        return {name:opts.path};
-    };
+    var rootPath = __dirname+'/mockResourceType',
+        mockResourceTypeFactory = function(opts){
+            return {name:opts.path};
+        };
 
     it('should throw an error when path is not valid.',function(done){
         assert.throws(
@@ -18,8 +19,8 @@ describe('ResourceTypesLoader', function(){
     });
 
     it ('should read in the contents of the mockResourceType directory and create an object return the file paths.', function(done){
-        var l = new ResourceTypesLoader({path:__dirname+'/mockResourceType'},{ResourceTypeFactory:mockResourceTypeFactory});
-        assert.object(l['mock.js']);
+        var factories = new ResourceTypesLoader({path:rootPath},{ResourceTypeFactory:mockResourceTypeFactory});
+        assert.object(factories[rootPath+'/mock.js']);
         done();
     });
 

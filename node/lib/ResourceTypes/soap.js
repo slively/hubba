@@ -9,34 +9,34 @@ check: { inputType: 'checkbox', value:true, header: 'Checkbox Woo!' }
 
 var soap = require('soap');
 
-function init(){
+function init(resource){
 	var self = this;
-	
-	if (this.ResourceType.configuration.WSDLURL.value.length){
+
+	if (resource.configuration.WSDLURL.length){
 		
-		if (this.ResourceType.SOAPClient){
-			delete this.ResourceType.SOAPClient;
+		if (resource.data.SOAPClient){
+			delete resource.data.SOAPClient;
 		}
+
+        resource.data.connecting = true;
+        resource.data.waitingQueue = [];
 		
-		this.ResourceType.connecting = true;
-		this.ResourceType.waitingQueue = [];	
-		
-		soap.createClient(this.ResourceType.configuration.WSDLURL.value, function(err, c) {
-			
-			self.ResourceType.connecting = false;
+		soap.createClient(resource.configuration.WSDLURL, function(err, c) {
+
+            resource.data.connecting = false;
 			
 			if (err){
 				throw err;
 				return;
 			}
-						
-			self.ResourceType.SOAPClient = c;
 
-			if (self.ResourceType.configuration.username.value.length && self.ResourceType.configuration.password.value.length){
-				client.setSecurity(new WSSecurity(self.ResourceType.configuration.username.value, self.ResourceType.configuration.password.value));
+            resource.data.SOAPClient = c;
+
+			if (resource.configuration.username.length && resource.configuration.password.length){
+				client.setSecurity(new WSSecurity(resource.configuration.username, resource.configuration.password));
 			}
-			
-			self.ResourceType.waitingQueue.forEach(function(obj){
+
+            resource.data.waitingQueue.forEach(function(obj){
 				obj.handler.apply(self,obj.args);
 			});
 			
@@ -45,8 +45,8 @@ function init(){
 };
 
 function getHandler(resource,req,res){
-	if (resource.ResourceType.SOAPClient){
-		res.send(200,resource.ResourceType.SOAPClient.describe());
+	if (resource.data.SOAPClient){
+		res.send(200,resource.data.SOAPClient.describe());
 	} else {
 		res.send(400,'Cannot describe resource. Either the WSDL URL is incorrect or the external SOAP resource is currently unavailable please check your resource config and that the external SOAP resource is available.');
 	}
@@ -61,16 +61,16 @@ function postHandler(resource,req,res){
 
     reqSubResources = reqResources.slice(i+1);
 
-	if (resource.ResourceType.SOAPClient){
+	if (resource.data.SOAPClient){
 		if (reqSubResources.length > 2){
-			resource.ResourceType.SOAPClient[reqSubResources[0]][reqSubResources[1]][reqSubResources[2]](req.body, function(err, result) {
+			resource.data.SOAPClient[reqSubResources[0]][reqSubResources[1]][reqSubResources[2]](req.body, function(err, result) {
 				if (err){
 					throw err;
 				}
 				res.send(result);
 			});
 		} else {
-			resource.ResourceType.SOAPClient[reqSubResources[0]](req.body, function(err, result) {
+			resource.data.SOAPClient[reqSubResources[0]](req.body, function(err, result) {
 				if (err){
 					throw err;
 				}
@@ -90,10 +90,10 @@ exports.ResourceType = {
 		username: { inputType: 'text', placeholder:'Enter a username for authentication.', value: '' },
 		password: { inputType: 'password', placeholder:'Enter a password for authentication.', value: '' }
 	},
-	wildcardChildRoute: true,
+	wildcardRoute: true,
 	GET: function(resource,req,res){
-		if (resource.ResourceType.connecting === true){
-			resource.ResourceType.waitingQueue.push({
+		if (resource.data.connecting === true){
+			resource.data.waitingQueue.push({
 				handler: getHandler,
 				args: [resource,req,res]
 			});
@@ -102,8 +102,8 @@ exports.ResourceType = {
 		}
 	},
 	POST: function(resource, req,res){
-		if (resource.ResourceType.connecting === true){
-			resource.ResourceType.waitingQueue.push({
+		if (resource.data.connecting === true){
+			resource.data.waitingQueue.push({
 				handler: postHandler,
 				args: [resource,req,res]
 			});
@@ -111,6 +111,6 @@ exports.ResourceType = {
 			postHandler(resource,req,res);
 		}
 	},
-	RESOURCE_CREATE: init,
-	RESOURCE_UPDATE: init
+	init: init,
+	update: init
 };

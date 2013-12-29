@@ -2,7 +2,8 @@
 
 var assert = require('assert-plus'),
     util = require("util"),
-    events = require("events");
+    events = require("events"),
+    nameRegEx = /([A-Za-z0-9\-\_]+)/;
 
 /*
     Simple tree node for a ResourceTree that inherits from EventEmitter.
@@ -19,25 +20,28 @@ function Resource(opts){
 
 	var o = opts || {};
 
-    if (typeof o.id === 'undefined'){
+    /*if (typeof o.id === 'undefined'){
         throw 'Resource must have an id.';
-    }
+    }*/
 
-    ResourceValidator(opts);
+    this.validate(opts);
 
     if (o.isRoot !== true){
+        this.isRoot = undefined;
         this.parent = o.parent;
         this.parentId = o.parent.id;
+        o.parent.children[o.name] = this;
+    } else {
+        this.isRoot = true;
     }
 
 	this.id = o.id;
-    this.isRoot = o.isRoot;
 	this.name = o.name;
 	this.versions = ['1.0.0'] || o.versions;
 	this.children = o.children || {};
     this.childRoutes = o.childRoutes;
+    this.path = '';
     this.updatePath();
-    this.emit('init');
 };
 
 util.inherits(Resource, events.EventEmitter);
@@ -46,28 +50,26 @@ util.inherits(Resource, events.EventEmitter);
 Resource.prototype.update = function(opts){
 	var opts = opts || {};
 
-	// If name changes, check first for duplicate, then delete current reference in parent object and add new reference
-	if (!this.isRoot && opts.name && opts.name != this.name){
-		var p = this.parent;
-		if (p.children[opts.name] != undefined){
-			throw 'There is already a resource with the same parent and the same name.';
-		}
+    this.validate(opts);
 
-		p.children[opts.name] = this;
-		delete p.children[this.name];
+	// If name changes, check first for duplicate, then delete current reference in parent object and add new reference
+	if (opts.name && opts.name != this.name) {
+        if (this.parent){
+            this.parent.children[opts.name] = this;
+            delete this.parent.children[this.name];
+        }
 		this.name = opts.name;
-		//this.updatePath();
-        this.emit('update:path');
 	}
 
     // if parentId changes, check to make sure new parent exists, and doesn't already have a child of the same name.
     if(opts.parentId && opts.parentId != this.parentId){
-        var p = findById(opts.parentId), op = this.parent;
-        p.addChild(this);
-        this.parentId = p.id;
-        this.parent = p;
-        delete op.children[this.name];
-        this.isRoot = false;
+        delete this.parent.children[this.name];
+
+        this.parentId = opts.parentId;
+        this.parent = opts.parent;
+        this.parent.children[this.name] = this;
+
+        this.isRoot = undefined;
     }
 
 	// if a type is passed in and it's different then the current type
@@ -84,12 +86,13 @@ Resource.prototype.update = function(opts){
 
 	// Call resource type update function after the configuration is all updated.
 	//this.ResourceType.RESOURCE_UPDATE.call(this,this);
-    this.emit('update');
+    this.updatePath();
+    this.emit('update',opts);
 	return this;
 };
 
-Resource.prototype.updatePath = function(opts){
-    var opts = opts || {}, p = "", r = this;
+Resource.prototype.updatePath = function(){
+    var p = "", r = this, curPath = this.path.toString();
 
     while (r.parent){
         p = "/" + r.name + p;
@@ -101,8 +104,13 @@ Resource.prototype.updatePath = function(opts){
 
     // TODO: have a displayPath as well?
 
-    if (this.childRoutes === true){
-        this.path+='(.*)';
+    if (curPath != this.path){
+
+        for(var key in this.children){
+            this.children[key].updatePath();
+        }
+
+        this.emit('update:path');
     }
 };
 
@@ -110,35 +118,71 @@ Resource.prototype.destroy = function(){
 	if (Object.keys(this.children).length > 0){
 		throw 'You must delete the children of a resource, before deleting a resource.';
 	}
-	
-	// call custom resource delete code
-	//
-	// this.ResourceType.RESOURCE_DELETE(this);
-	
-	// remove from store -- will be a file/database at some point
-	/*for ( var i in ResourcesStore ){
-		if (ResourcesStore[i].id == this.id){
-			ResourcesStore.splice(i,1);
-			break;
-		}
-	}*/
 
+    if (this.parent){
+        delete this.parent.children[this.name];
+    }
 
-	//this.deleteServerRoute();
-	// remove reference from parent (no longer accessible now)
-	//findById(this.parentId).removeChild(this.name);
     this.emit('destroy');
-}
+    this.removeAllListeners();
+};
 
+Resource.prototype.validate = function(opts){
+    var o = opts || {};
+
+    assert.optionalString(o.name, 'Resource name');
+    assert.optionalBool(o.isRoot);
+    assert.optionalObject(o.parent);
+    assert.optionalArrayOfString(o.versions,'Resource versions');
+
+    // TODO check for valid URL names.
+    if (!this.name && (!o.name || o.name.length == 0)){
+        throw 'Resource must have a name of length > 0.';
+    } else if (nameRegEx.test(o.name) === false){
+        throw 'Resource name can only contain letters, numbers, underscores, and hyphens.';
+    } else if(this.isRoot !== true && this.parent === undefined && o.isRoot !== true && o.parent === undefined){
+        throw 'Resource must either be a root or have a parent.';
+    } else if( ((this.isRoot || o.isRoot === true) && o.parent) ||
+        ((this.parent || o.parent) && o.isRoot === true) ){
+        throw 'Resource cannot be a root and have a parent.';
+    } else if (o.name != this.name && o.parent && o.parent.children[o.name]){
+        throw 'Parent resource ' + o.parent.name + ' already has a child named ' + o.name + '.';
+    }
+
+
+    /*if (this.isRoot !== true && o.isRoot !== true){
+        if (typeof o.parent === 'undefined' && typeof this.parent === 'undefined'){
+            throw 'Resource must either be a root or have a parent.';
+        } else if (o.name != this.name && o.parent.children[o.name]){
+            throw 'Parent resource ' + o.parent.name + ' already has a child named ' + o.name + '.';
+        }
+    } else if ((this.isRoot || o.isRoot === true) && typeof o.parent !== 'undefined'){
+        throw 'Resource cannot be a root and have a parent.';
+    }*/
+
+
+    //is neither and is passed neither
+
+    // is a root and is passed a parent
+    // has a parent and is passed root
+
+    // is a root and is not passed a parent
+    // is a root and is passed nothing
+    // has a parent and is passed nothing
+    // has a parent and is not passed a root
+
+    this.emit('validate',opts);
+
+    return this;
+};
+
+/*
 Resource.prototype.addChild = function(opts){
 	assert.object(opts,"Child resource object");
 	assert.string(opts.name, "Child resource name");
 	
-	if (this.children[opts.name]){
-		throw 'There is already a resource with the same parent and the same name.';
-	}
-	
-	opts.parentId = this.id;
+
+
 	this.children[opts.name] = new Resource(opts);
 	return this.children[opts.name];
 };
@@ -148,34 +192,10 @@ Resource.prototype.removeChild = function(name){
 		delete this.children[name];
 		
 	return this;
-};
+};*/
 
-
-function ResourceValidator(opts){
-    var o = opts || {};
-
-    assert.string(o.name, 'Resource name');
-    assert.optionalBool(o.isRoot);
-    assert.optionalObject(o.parent);
-    assert.optionalArrayOfString(o.versions,'Resource versions');
-
-    // TODO check for valid URL names.
-    if (o.name.length == 0){
-        throw 'Resource must have a name of length > 0.';
-    } else if (o.isRoot !== true){
-        if (typeof o.parent === 'undefined'){
-            throw 'Resource must either be a root or have a parent.';
-        }
-    } else if (o.isRoot === true && typeof o.parent !== 'undefined'){
-        throw 'Resource cannot be a root and have a parent.';
-    }
-
-    return true;
-};
 
 exports.Resource = Resource;
-exports.ResourceValidator = ResourceValidator;
-
 
 
 

@@ -2,7 +2,7 @@
 
 var assert = require("assert-plus");
 
-
+/*
 describe('rest resource NODE API tests', function() {
 	var root, r, resource = require('../../lib/resource');
 	 
@@ -73,13 +73,10 @@ describe('rest resource NODE API tests', function() {
 		assert.throws(function(){resource.findById(r.id)});
 		done();	
 	});
-});
+});*/
 
-describe('rest resource REST API tests', function() {
-	require('../../lib/server').startup({
-		port: 8081
-	});
-	
+describe('Rest Resource', function() {
+
 	var rootId, id, client = require('restify').createJsonClient({
 	    version: '*',
 	    url: 'http://127.0.0.1:8081'
@@ -89,13 +86,14 @@ describe('rest resource REST API tests', function() {
 	});
 	
 	// get the root id
-	it('GET /hubba/api/resources Root id should return a 200 response', function(done) {
-		client.get('/hubba/api/resources', function(err, req, res, data) {
-			assert.ifError(err);
-			rootId = data.id;
-			done();
-		});
-	});
+    it('GET /hubba/api/resources/root should return a 200 response and return only a root resource.', function(done) {
+        client.get('/hubba/api/resources/root', function(err, req, res, data) {
+            assert.ifError(err);
+            assert.ok(data.id);
+            rootId = data.id;
+            done();
+        });
+    });
 	
 	// add new rest resource
 	it('POST new rest resource called "rest_resource" to /hubba/api/resources should return a 200 response.', function(done) {
@@ -108,7 +106,7 @@ describe('rest resource REST API tests', function() {
 			assert.ifError(err);
 			id = data.id;
 			client.get('/api/rest_resource', function(err, req, res, data){
-				assert.ifError(err);
+				assert.ok(err.message.indexOf('Invalid URI') > -1);
 				done();
 			});
 		});
@@ -127,7 +125,6 @@ describe('rest resource REST API tests', function() {
 			}
 		}, function(err, req, res, data) {
 			assert.ifError(err);
-			
 			assert.equal(data.type,"rest","Rest resource has incorrect type! should be 'rest', is actually " + data.type);
 			assert.equal(data.name,name,"Rest resource has incorrect url! should be be "+name+" is actually " + data.name);
 			assert.equal(data.configuration.url,url,"Rest resource has incorrect url! should be be "+url+" is actually " + data.configuration.url);
