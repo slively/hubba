@@ -1,0 +1,17 @@
+<div ng-controller="childOutputCtrl">
+	
+	<span ng-if="!child.type">"{{key}}" : [{{child[0]}}]<span ng-if="!$last">,</span></span>
+	<span ng-if="child.type && child.type != 'object'">"{{key}}" : {{child.type}}<strong ng-if="child.required">*</strong><span ng-if="!$last">,</span></span>
+
+	<div ng-if="child.type && child.type =='object'">
+		
+		"{{key}}": {
+		<ul class="expected-object-tree">
+			
+			<li ng-repeat="(key,child) in child.children">
+				<ng-include src="'/hubba/partials/expectedOutputTree.html'"></ng-include>
+			</li>
+		</ul>
+		}<span ng-if="!$last">,</span>
+	</div>
+</div>
