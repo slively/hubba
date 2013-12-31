@@ -15,7 +15,7 @@ function getFilePath(resource,req){
         throw 'Invalid url must follow pattern: /api/my_file_resource/:filename'
     }
 
-    return resource.ResourceType.configuration.path.value + '/' + reqSubResources[0];
+    return resource.configuration.path + '/' + reqSubResources[0];
 };
 
 function getFile(resource,req,res){
@@ -26,7 +26,7 @@ function getFile(resource,req,res){
 
 function updateFile(resource,req,res){
     assert.string(req.params.name);
-    fs.rename(getFilePath(resource,req), resource.ResourceType.configuration.path.value + '/' + req.params.name, function (err) {
+    fs.rename(getFilePath(resource,req), resource.configuration.path + '/' + req.params.name, function (err) {
         if (err) throw err;
         res.send(200,resource.path.replace('(.*)','') + '/' + req.params.name);
     });
@@ -53,7 +53,7 @@ function uploadFile(resource,req,res){
             res.send(500,err);
         });
 
-        reader.pipe(fs.createWriteStream(resource.ResourceType.configuration.path.value + '/' + req.files[f].name));
+        reader.pipe(fs.createWriteStream(resource.configuration.path + '/' + req.files[f].name));
     });
 };
 
@@ -70,7 +70,7 @@ exports.ResourceType = {
     configuration: {
         path: { inputType: 'text', placeholder:'The file path.', value: '', required: true }
     },
-    wildcardChildRoute: true,
+    wildcardRoute: true,
     GET: getFile,
     PUT: updateFile,
     PATCH: updateFile,

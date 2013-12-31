@@ -118,7 +118,7 @@ describe('Area Resource', function() {
     });*/
 	
 	it('area_resource should be renamed to "area_resource_r", the path should be updated.', function(done){
-		client.put('/hubba/api/resources/'+id+'?include_children=true', {
+		client.put('/hubba/api/resources/'+id+'', {
 			"name": "area_resource_r"
 		}, function(err, req, res, data) {
 			assert.ifError(err);

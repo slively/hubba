@@ -4,30 +4,39 @@ var nodemailer = require("nodemailer");
 
 var updateTransport = function(resource){
     var opts = {
-        host: resource.ResourceType.configuration.host.value, // hostname
-        secureConnection: resource.ResourceType.configuration.ssl.value, // use SSL
-        port: resource.ResourceType.configuration.port.value // port for secure SMTP
+        host: resource.configuration.host, // hostname
+        secureConnection: resource.configuration.ssl, // use SSL
+        port: resource.configuration.port // port for secure SMTP
     };
 
-    if (resource.ResourceType.configuration.username.value.length){
+    if (resource.configuration.username.length){
         opts.auth = {
-            user: resource.ResourceType.configuration.username.value,
-            pass: resource.ResourceType.configuration.password.value
+            user: resource.configuration.username,
+            pass: resource.configuration.password
         }
         opts.requiresAuth = true;
     }
 
-    resource.ResourceType.transport = nodemailer.createTransport("SMTP",opts);
+    delete resource.data.transport;
+
+    if (opts.host.length){
+        resource.data.transport = nodemailer.createTransport("SMTP",opts);
+    }
 };
 
 var sendEmail = function(resource, req, res){
-    resource.ResourceType.transport.sendMail(req.body, function(err, responseStatus){
-        if(err){
-            throw err;
-        }
 
-        res.send(200,responseStatus.message);
-    });
+    if(resource.data.transport){
+        resource.data.transport.sendMail(req.body, function(err, responseStatus){
+            if(err){
+                console.log(err.stack);
+                throw err;
+            }
+            res.send(200,responseStatus.message);
+        });
+    } else {
+        throw new Error('Must define a host before attempting to send emails.')
+    }
 };
 
 exports.ResourceType = {
@@ -40,7 +49,7 @@ exports.ResourceType = {
 		username: { inputType: 'text', placeholder:'Enter a username for authentication.', value: '' },
 		password: { inputType: 'password', placeholder:'Enter a password for authentication.', value: '' }
 	},
-    RESOURCE_CREATE: updateTransport,
-    RESOURCE_UPDATE: updateTransport,
+    init: updateTransport,
+    update: updateTransport,
 	POST: sendEmail
 };

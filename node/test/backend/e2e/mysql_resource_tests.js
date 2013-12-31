@@ -6,12 +6,7 @@ Date.prototype.toMySQLDate = function(){
     return this.getYear() + '-' + this.getMonth() + '-' + this.getDay() + ' ' + this.getHours() + ':' + this.getMinutes() + ':' + this.getSeconds();
 }
 
-describe('mysql resource', function() {
-    var server = require('../../lib/server').startup({
-        port: 8081
-    });
-
-
+describe('Mysql Resource', function() {
 
     var rootId, id, client = require('restify').createJsonClient({
         version: '*',
@@ -19,7 +14,7 @@ describe('mysql resource', function() {
     });
 
     it('GET /hubba/api/resources should get a 200 response', function(done) {
-        client.get('/hubba/api/resources', function(err, req, res, data) {
+        client.get('/hubba/api/resources/root', function(err, req, res, data) {
             assert.ifError(err);
             rootId = data.id;
             done();

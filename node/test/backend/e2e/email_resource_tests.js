@@ -3,9 +3,6 @@
 var assert = require("assert-plus");
 
 describe('email resource', function() {
-    var server = require('../../lib/server').startup({
-        port: 8081
-    });
 
     var rootId, id, client = require('restify').createJsonClient({
         version: '*',
@@ -14,7 +11,7 @@ describe('email resource', function() {
 
 	// get root resource
 	it('GET /hubba/api/resources should get a 200 response', function(done) {
-		client.get('/hubba/api/resources', function(err, req, res, data) {
+		client.get('/hubba/api/resources/root', function(err, req, res, data) {
 			assert.ifError(err);
 			rootId = data.id;
 			done();
@@ -50,7 +47,7 @@ describe('email resource', function() {
 
 	
 	it('should successfully send an email.', function(done) {
-
+        this.timeout(5000);
         client.post('/api/email_resource_test', {
             from: "testhubba@gmail.com",
             to: "testhubba@gmail.com",
@@ -59,7 +56,6 @@ describe('email resource', function() {
             html: "<h1>Big HTML body!</h1>"
         }, function(err, req, res, data) {
 			assert.ifError(err);
-			console.log(data);
 			done();
         });
 

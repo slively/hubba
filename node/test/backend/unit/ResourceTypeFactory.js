@@ -301,28 +301,21 @@ describe('ResourceTypeFactory', function(){
             done();
         });
 
-
-        it ('should have a registered init event.', function(done){
-            assert.ok(mockResourceType.emit('init'));
-            assert.ok(mockResourceType._events['init'].toString().indexOf('var init = true;') > -1);
-            done();
-        });
-
         it ('should have a registered validate event.', function(done){
             assert.ok(mockResourceType.emit('validate'));
-            assert.ok(mockResourceType._events['validate'].toString().indexOf('var validate = true;') > -1);
+            assert.ok(mockResourceType._events['validate'].toString().indexOf('.validate') > -1);
             done();
         });
 
         it ('should have a registered update event.', function(done){
             assert.ok(mockResourceType.emit('update'));
-            assert.ok(mockResourceType._events['update'][1].toString().indexOf('var update = true;') > -1);
+            assert.ok(mockResourceType._events['update'][1].toString().indexOf('.update') > -1);
             done();
         });
 
         it ('should have a registered destroy event.', function(done){
             assert.ok(mockResourceType.emit('destroy'));
-            assert.ok(mockResourceType._events['destroy'].toString().indexOf('var destroy = true;') > -1);
+            assert.ok(mockResourceType._events['destroy'].toString().indexOf('.destroy') > -1);
             done();
         });
 

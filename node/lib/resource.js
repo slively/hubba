@@ -39,8 +39,13 @@ function Resource(opts){
 	this.name = o.name;
 	this.versions = ['1.0.0'] || o.versions;
 	this.children = o.children || {};
-    this.childRoutes = o.childRoutes;
     this.path = '';
+    this.childRoutes = false;
+
+    if (o.childRoutes === true){
+        this.childRoutes = true;
+    }
+
     this.updatePath();
 };
 
@@ -116,7 +121,7 @@ Resource.prototype.updatePath = function(){
 
 Resource.prototype.destroy = function(){
 	if (Object.keys(this.children).length > 0){
-		throw 'You must delete the children of a resource, before deleting a resource.';
+		throw new Error('You must delete the children of a resource, before deleting a resource.');
 	}
 
     if (this.parent){
@@ -135,7 +140,6 @@ Resource.prototype.validate = function(opts){
     assert.optionalObject(o.parent);
     assert.optionalArrayOfString(o.versions,'Resource versions');
 
-    // TODO check for valid URL names.
     if (!this.name && (!o.name || o.name.length == 0)){
         throw 'Resource must have a name of length > 0.';
     } else if (nameRegEx.test(o.name) === false){

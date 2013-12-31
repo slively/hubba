@@ -5,10 +5,7 @@ var assert = require("assert-plus"),
     request = require('request'),
     path = require('path');
 
-describe('file resource', function() {
-    var server = require('../../lib/server').startup({
-        port: 8081
-    });
+describe('File Resource', function() {
 
     var rootId,
         id,
@@ -18,7 +15,7 @@ describe('file resource', function() {
         });
 
     it('GET /hubba/api/resources should get a 200 response', function(done) {
-        client.get('/hubba/api/resources', function(err, req, res, data) {
+        client.get('/hubba/api/resources/root', function(err, req, res, data) {
             assert.ifError(err);
             rootId = data.id;
             done();

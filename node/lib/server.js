@@ -5,6 +5,8 @@ var assert = require('assert-plus'),
     restify = require('restify'),
     ResourceTree = require('./resourceTree').ResourceTree,
     optimist = require('optimist'),
+    cluster = require('cluster'),
+    static = require('node-static'),
     DEFAULT_PORT = 8080,
     DEFAULT_STORE = 'file';
 
@@ -50,6 +52,7 @@ var options = optimist.usage('Run a huba web server.\n Usage: $0').options({
     tree;
 
 function main(argv){
+
     if (argv.store[0] == 'redis'){
         store = {
             type: argv.store[0],
@@ -62,7 +65,17 @@ function main(argv){
     }
 
 
-    server = restify.createServer();
+    var server = restify.createServer(),
+        adminStaticServer = restify.serveStatic({
+            directory: __dirname+'/hubba-admin',
+            default: 'index.html'
+        }),
+        publicStaticServer = restify.serveStatic({
+            directory: __dirname+'/../../public',
+            default: 'index.html'
+        }),
+        tree = new ResourceTree({store: store});
+
     server.use(restify.acceptParser(server.acceptable));
     server.use(restify.authorizationParser());
     server.use(restify.dateParser());
@@ -71,7 +84,7 @@ function main(argv){
     server.use(restify.gzipResponse());
     server.use(restify.bodyParser());
 
-    tree = new ResourceTree({store: store});
+
     /*tree.getRoutes(function(err,results){
         results.forEach(function(o){
             updateSeverRoute(server,o);
@@ -94,7 +107,29 @@ function main(argv){
         }
       }
     }));
-    server.use(restify.conditionalRequest());*/
+    server.use(restify.conditionalRequest());
+
+    server.get('/hubba-admin(.*)',function(req,res){
+        console.log(staticServer);
+        staticServer.serve(req, res, function (err, result) {
+            if (err) { // There was an error serving the file
+                console.log("Error serving " + req.url + " - " + err.message);
+
+                // Respond to the client
+                res.writeHead(err.status, err.headers);
+                res.end();
+            }
+        });
+    });*/
+
+    server.get('/hubba-admin(.*)', function(req,res,next){
+        adminStaticServer(req,res,function(err){
+            if(err){
+                req._path = '/hubba-admin';
+                adminStaticServer(req,res,next);
+            }
+        });
+    });
 
     server.get('/hubba/api.js',function(req,res){
         res.send(200,"window.hubba = {};");
@@ -102,10 +137,17 @@ function main(argv){
 
     server.get('/hubba/api/resources',function(req,res){
 
-        tree.findAll(function(err,resources){
-            if(err) throw err;
-            res.send(200,resources);
-        });
+        if(req.params.tree == 'true'){
+            tree.getTree(function(err,resources){
+                if(err) throw err;
+                res.send(200,resources);
+            });
+        } else {
+            tree.findAll(function(err,resources){
+                if(err) throw err;
+                res.send(200,resources);
+            });
+        }
     });
 
     server.get('/hubba/api/resources/root',function(req,res){
@@ -218,12 +260,23 @@ function main(argv){
         */
     });
 
-    server.get('/hubba/api/resource_types/',function(req,res){
+    server.get('/hubba/api/resource_types',function(req,res){
         tree.getTypes(function(err,types){
             if(err) throw err;
-            res.send(200,types);
+
+            if (req.params.object == 'true'){
+                var obj = {};
+                types.forEach(function(type){
+                    obj[type.name] = type;
+                });
+                res.send(200,obj);
+            } else {
+                res.send(200,types);
+            }
         });
     });
+
+    server.get(/^\/(?!api).*/, publicStaticServer);
 
     server.listen(argv.port[0]);
     console.log("Hubba listening on port: " + argv.port[0]);

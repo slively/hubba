@@ -2,12 +2,7 @@
 
 var assert = require("assert-plus");
 
-describe('postgresql resource', function() {
-    var server = require('../../lib/server').startup({
-        port: 8081
-    });
-
-
+describe('Postgresql Resource', function() {
 
     var rootId, id, client = require('restify').createJsonClient({
         version: '*',
@@ -15,7 +10,7 @@ describe('postgresql resource', function() {
     });
 
     it('GET /hubba/api/resources should get a 200 response', function(done) {
-        client.get('/hubba/api/resources', function(err, req, res, data) {
+        client.get('/hubba/api/resources/root', function(err, req, res, data) {
             assert.ifError(err);
             rootId = data.id;
             done();
@@ -91,7 +86,6 @@ describe('postgresql resource', function() {
             sql: 'DELETE FROM people;'
         }, function(err, req, res, data) {
             assert.ifError(err);
-            console.log(data);
             done();
         });
 

@@ -1,10 +1,7 @@
 var assert = require("assert-plus");
 
 describe('controller resource REST API tests', function() {
-	require('../../lib/server').startup({
-		port: 8081
-	});
-	
+
 	var rootId, 
 		id, 
 		client = require('restify').createJsonClient({
@@ -18,7 +15,7 @@ describe('controller resource REST API tests', function() {
 	
 	// get the root id
 	it('GET /hubba/api/resources Root id should get a 200 response', function(done) {
-		client.get('/hubba/api/resources', function(err, req, res, data) {
+		client.get('/hubba/api/resources/root', function(err, req, res, data) {
 			assert.ifError(err);
 			rootId = data.id;
 			done();

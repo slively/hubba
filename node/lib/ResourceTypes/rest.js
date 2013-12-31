@@ -14,7 +14,7 @@ exports.ResourceType = {
 	label: 'REST Proxy',
 	configuration: {
 		url: { inputType: 'text', placeholder:'Enter the url for the REST resource. (ex./ http://myservice/resource)', value: '', required: true },
-		params: {inputType: 'text', placeholder:'Enter query params that will always be sent. (ex./param1=a)', value: '', required: true }
+		params: {inputType: 'text', placeholder:'Enter query params that will always be sent. (ex./param1=a)', value: '' }
 	},
 	GET: function(resource,req,res){
 		request.get(resource.configuration.url+'?'+resource.configuration.params).pipe(res)
