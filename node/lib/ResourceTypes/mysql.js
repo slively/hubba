@@ -7,43 +7,43 @@ function createPool(resource){
     var self = this;
 
     // reset waiting queue (new requests will go here until the update is done)
-    resource.ResourceType.waitingQueue = [];
+    resource.data.waitingQueue = [];
 
 
     // delete the current connection object
-    resource.ResourceType.pool = undefined;
+    resource.data.pool = undefined;
 
     // create new connection object
-    resource.ResourceType.pool = mysql.createPool({
-        host     : resource.ResourceType.configuration.host.value,
-        user     : resource.ResourceType.configuration.user.value,
-        password : resource.ResourceType.configuration.password.value,
-        database : resource.ResourceType.configuration.database.value,
-        localAddress : resource.ResourceType.configuration.localAddress.value,
-        socketPath : resource.ResourceType.configuration.socketPath.value,
-        connectionLimit : resource.ResourceType.configuration.connectionLimit.value,
-        queueLimit : resource.ResourceType.configuration.queueLimit.value,
+    resource.data.pool = mysql.createPool({
+        host     : resource.configuration.host,
+        user     : resource.configuration.user,
+        password : resource.configuration.password,
+        database : resource.configuration.database,
+        localAddress : resource.configuration.localAddress,
+        socketPath : resource.configuration.socketPath,
+        connectionLimit : resource.configuration.connectionLimit,
+        queueLimit : resource.configuration.queueLimit,
         supportBigNumbers : true,
         bigNumberStrings : true
     });
 
     // fire all events in the waiting queue
-    resource.ResourceType.waitingQueue.forEach(function(obj){
+    resource.data.waitingQueue.forEach(function(obj){
         queryHandler.apply(self,obj.args);
     });
 
     // resume normal connection handling
-    resource.ResourceType.connecting = false;
+    resource.data.connecting = false;
 };
 
 function update(resource){
 
     // new connections will go to the waitingQueue
-    resource.ResourceType.connecting = true;
+    resource.data.connecting = true;
 
-    if (resource.ResourceType.pool){
+    if (resource.data.pool){
         // disconnect all connections and wait for them to end
-        resource.ResourceType.pool.end(function(){
+        resource.data.pool.end(function(){
             createPool(resource);
         });
     } else {
@@ -69,7 +69,9 @@ function queryHandler(resource,req,res){
         },
         v = req.body.values || [];
 
-    resource.ResourceType.pool.getConnection(function(err, connection) {
+    console.log(q.sql);
+    console.log(v);
+    resource.data.pool.getConnection(function(err, connection) {
         if (err){
             throw err;
         }
@@ -107,7 +109,7 @@ exports.ResourceType = {
 	},
 	POST: function(resource,req,res){
         // if currently connecting, put request in the waitingQueue
-        if (this.ResourceType.connecting === true){
+        if (resource.data.connecting === true){
             waitingQueue.push({
                 args: [resource,req,res]
             });
@@ -115,6 +117,6 @@ exports.ResourceType = {
             queryHandler(resource,req,res);
         }
     },
-    RESOURCE_CREATE: update,
-    RESOURCE_UPDATE: update
+    init: update,
+    update: update
 };

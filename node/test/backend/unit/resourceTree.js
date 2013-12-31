@@ -2,29 +2,33 @@ var assert = require('assert-plus'),
     events = require("events"),
     util = require("util"),
     ResourceTree = require('../../../lib/ResourceTree').ResourceTree,
-    mockResourceTypeFactory = function(){
+    mockResourceTypeFactory = function(name){
 
         this.toJSON = function(){
             return {
-                name: 'area',
+                name: name,
                 configuration: {}
             }
         }
 
         this.createResource = function(){
-            return new mockResourceType();
+            return new mockResourceType({type:name});
         };
     },
-    mockResourceType = function(id){
+    mockResourceType = function(opt){
         events.EventEmitter.call(this);
-        this.id = id || 1;
+        var o = opt || {};
+
+        this.id = o.id || 1;
         this.isRoot = true;
-        this.type = 'area';
+        this.type = o.type || 'area';
+        this.path = '/dummy';
+        this.http = {};
         var self = this;
         this.update = function(){self.emit('update:path');};
         this.destroy = function(){return this;};
         this.toJSON = function(){
-            return {id:this.id,isRoot:true,type:'area'};
+            return {id:this.id,isRoot:this.isRoot,type:this.type, children: { child: {id:2,parentId:1 }}};
         }
     },
     mockResourceStore = function(){
@@ -36,14 +40,19 @@ var assert = require('assert-plus'),
                 {id:2,type:'area',parentId:1},
                 {id:3,type:'area',parentId:1},
                 {id:4,type:'area',parentId:2},
-                {id:5,type:'area',parentId:3},
+                {id:5,type:'area',parentId:3}
             ]);
         }
         this.add = function(o,cb){cb(undefined,++ids);};
         this.replace = function(o,cb){cb(undefined,new mockResourceType());};
         this.remove = function(id,cb){cb(undefined);};
     },
-    mockResourceTypesLoader = function(){return {area:new mockResourceTypeFactory()}},
+    mockResourceTypesLoader = function(){
+        return {
+            area:new mockResourceTypeFactory('area'),
+            other:new mockResourceTypeFactory('other')
+        }
+    },
     tree,
     resource;
 
@@ -59,15 +68,44 @@ describe('ResourceTree', function(){
         done();
     });
 
-    it ('should allow the retrieving of the resource types JSON representation.', function(done){
-        var types = tree.getTypes();
-        assert.arrayOfObject(types,'Mock ResourceType');
-        done();
+    it ('should allow the retrieving of the resource types.', function(done){
+        tree.getTypes(function(err,types){
+            assert.arrayOfObject(types,'Mock ResourceType');
+            done();
+        });
     });
 
-    it ('should allow the retrieving of the root resource JSON representation.', function(done){
+    it ('should allow the retrieving of the root resource.', function(done){
         tree.getRoot(function(err,root){
             assert.equal(undefined,root.parentId);
+            done();
+        });
+    });
+
+    it ('should allow the retrieving of all resources as an array.', function(done){
+        tree.findAll(function(err,resources){
+            assert.ifError(err);
+            assert.equal(5,resources.length);
+            done();
+        });
+    });
+
+    it ('should allow the retrieving of all resources as a tree.', function(done){
+        tree.getTree(function(err,rTree){
+            assert.ifError(err);
+            assert.object(rTree.children,'Root children');
+            assert.equal(2,rTree.children.child.id);
+            done();
+        });
+    });
+
+    it ('should allow the retrieving of all resource routes with their handlers.', function(done){
+        tree.getRoutes(function(err,routes){
+            assert.ifError(err);
+            assert.equal(5,routes.length);
+            routes.forEach(function(r){
+                assert.object(r.http);
+            });
             done();
         });
     });
@@ -93,6 +131,14 @@ describe('ResourceTree', function(){
         tree.update(resource.id,{},function(err,r){
             assert.ifError(err);
             assert.equal(resource.id,r.id);
+            done();
+        });
+    });
+
+    it('should allow the updating of a resource type.',function(done){
+        tree.update(resource.id,{type:'other'},function(err,r){
+            assert.ifError(err);
+            assert.equal(r.type,'other','Resource type');
             done();
         });
     });

@@ -1,9 +1,8 @@
 "use strict";
 
 function redirect(resource,req,res){
-    res.header('Location',resource.ResourceType.configuration.url.value);
-    res.send(301,{url:resource.ResourceType.configuration.url.value
-    });
+    res.header('Location',resource.configuration.url);
+    res.send(301,{url:resource.configuration.url});
 };
 
 exports.ResourceType = {

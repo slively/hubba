@@ -6,39 +6,39 @@ function createPool(resource){
     var self = this;
 
     // reset waiting queue (new requests will go here until the update is done)
-    resource.ResourceType.waitingQueue = [];
+    resource.data.waitingQueue = [];
 
 
     // delete the current connection object
-    resource.ResourceType.pool = undefined;
+    resource.data.pool = undefined;
 
     // create new connection object
-    resource.ResourceType.pool = require('pg');
-    resource.ResourceType.pool.defaults.host = resource.ResourceType.configuration.host.value;
-    resource.ResourceType.pool.defaults.port = resource.ResourceType.configuration.port.value;
-    resource.ResourceType.pool.defaults.user = resource.ResourceType.configuration.user.value;
-    resource.ResourceType.pool.defaults.password = resource.ResourceType.configuration.password.value;
-    resource.ResourceType.pool.defaults.database = resource.ResourceType.configuration.database.value;
-    resource.ResourceType.pool.defaults.poolSize = resource.ResourceType.configuration.poolSize.value;
-    resource.ResourceType.pool.defaults.ssl = resource.ResourceType.configuration.ssl.value;
+    resource.data.pool = require('pg');
+    resource.data.pool.defaults.host = resource.configuration.host;
+    resource.data.pool.defaults.port = resource.configuration.port;
+    resource.data.pool.defaults.user = resource.configuration.user;
+    resource.data.pool.defaults.password = resource.configuration.password;
+    resource.data.pool.defaults.database = resource.configuration.database;
+    resource.data.pool.defaults.poolSize = resource.configuration.poolSize;
+    resource.data.pool.defaults.ssl = resource.configuration.ssl;
 
     // fire all events in the waiting queue
-    resource.ResourceType.waitingQueue.forEach(function(obj){
+    resource.data.waitingQueue.forEach(function(obj){
         queryHandler.apply(self,obj.args);
     });
 
     // resume normal connection handling
-    resource.ResourceType.connecting = false;
+    resource.data.connecting = false;
 };
 
 function update(resource){
 
     // new connections will go to the waitingQueue
-    resource.ResourceType.connecting = true;
+    resource.data.connecting = true;
 
-    if (resource.ResourceType.pool){
+    if (resource.data.pool){
         // disconnect all connections
-        resource.ResourceType.pool.end();
+        resource.data.pool.end();
     }
 
     createPool(resource);
@@ -54,7 +54,7 @@ function update(resource){
 function queryHandler(resource,req,res){
     assert.string(req.body.sql,'sql');
 
-    resource.ResourceType.pool.connect(function(err, client, done) {
+    resource.data.pool.connect(function(err, client, done) {
         if (err){
             throw err;
         }
@@ -88,7 +88,7 @@ exports.ResourceType = {
     },
     POST: function(resource,req,res){
         // if currently connecting, put request in the waitingQueue
-        if (this.ResourceType.connecting === true){
+        if (resource.data.connecting === true){
             waitingQueue.push({
                 args: [resource,req,res]
             });
@@ -96,6 +96,6 @@ exports.ResourceType = {
             queryHandler(resource,req,res);
         }
     },
-    RESOURCE_CREATE: update,
-    RESOURCE_UPDATE: update
+    init: update,
+    update: update
 };

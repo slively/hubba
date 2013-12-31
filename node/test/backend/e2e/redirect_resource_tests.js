@@ -2,10 +2,7 @@
 
 var assert = require('assert-plus');
 
-describe('redirect resource', function() {
-    require('../../lib/server').startup({
-        port: 8081
-    });
+describe('Redirect Resource', function() {
 
     var rootId, id, client = require('restify').createJsonClient({
         version: '*',
@@ -14,7 +11,7 @@ describe('redirect resource', function() {
 
     // get the root id
     it('GET /hubba/api/resources Root id should return a 200 response', function(done) {
-        client.get('/hubba/api/resources', function(err, req, res, data) {
+        client.get('/hubba/api/resources/root', function(err, req, res, data) {
             assert.ifError(err);
             rootId = data.id;
             done();

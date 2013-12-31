@@ -20,13 +20,17 @@ describe('ResourceTree (file) 1st creation.',function(){
     // should have all the default types
     it('should have all of the default types.',function(done){
         var files = fs.readdirSync(rootPath),
-            types = tree.getTypes();
+            types;
 
-        types.forEach(function(type){
-            assert.ok(files.indexOf(type.name+'.js') > -1);
+        tree.getTypes(function(err,result){
+            types = result;
+
+            types.forEach(function(type){
+                assert.ok(files.indexOf(type.name+'.js') > -1);
+            });
+
+            done();
         });
-
-        done();
 
     });
 
@@ -34,7 +38,7 @@ describe('ResourceTree (file) 1st creation.',function(){
     it('should have a root resource called "api".',function(done){
         tree.getRoot(function(err,r){
             assert.ifError(err);
-            root = r;console.log(r);
+            root = r;
             assert.object(root);
             assert.equal('api',root.name);
             assert.equal('area',root.type);
@@ -68,6 +72,22 @@ describe('ResourceTree (file) 1st creation.',function(){
         });
     });
 
+    it('should change the type of "area" to redirect',function(done){
+        tree.update(area.id,{type:'redirect'},function(err,result){
+            assert.ifError(err);
+            assert.equal(result.type,'redirect');
+            done();
+        })
+    });
+
+    it('should change the type of "area" back to area',function(done){
+        tree.update(area.id,{type:'area'},function(err,result){
+            assert.ifError(err);
+            assert.equal(result.type,'area');
+            done();
+        })
+    })
+
     it('should add a new child to "area" called "area_child".',function(done){
         tree.add({type:'area',name:'area_child',parentId:area.id},function(err,result){
             assert.ifError(err);
@@ -90,6 +110,15 @@ describe('ResourceTree (file) 2nd creation.',function(){
         tree.findAll(function(err,result){
             assert.ifError(err);
             assert.equal(3,result.length);
+            done();
+        });
+    });
+
+    it('should call getTree and retrieve the 3 stored resources as a tree.',function(done){
+        tree.getTree(function(err,result){
+            assert.ifError(err);
+            assert.equal(result.children.area.id,2,'area_child id');
+            assert.equal(result.children.area.children.area_child.id,3,'area_child id');
             done();
         });
     });

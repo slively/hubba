@@ -1,12 +1,5 @@
 "use strict";
 
-/*
-arraySelect: { inputType: 'select', placeholder:'multiple', value: [], options: ['test1', 'test2', 'etc...'], required: true, multiple: true },
-select: { inputType: 'select', placeholder:'multiple', value: [], options: ['test1', 'test2', 'etc...'], required: true },
-radio: { inputType: 'radio', value: 'test1', options: ['test1', 'test2', 'etc...'], required: true, header: 'Radios Woo!' },
-check: { inputType: 'checkbox', value:true, header: 'Checkbox Woo!' }
-*/
-
 var soap = require('soap');
 
 function init(resource){

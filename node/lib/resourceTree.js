@@ -47,14 +47,19 @@ function ResourceTree(opts,mocks){
         root = null,
         fQueue = [];
 
-    this.getTypes = function getTypes(){
+    this.getTypes = function getTypes(cb){
         var t = [];
 
-        for (var key in resourceFactories){
-            t.push(resourceFactories[key].toJSON());
+        try {
+            for (var key in resourceFactories){
+                t.push(resourceFactories[key].toJSON());
+            }
+        } catch(e){
+            cb(e);
         }
 
-        return t;
+        cb(undefined,t);
+        return this;
     };
 
     this.getRoot = function(cb){
@@ -112,6 +117,30 @@ function ResourceTree(opts,mocks){
         return this;
     };
 
+    this.getTree = function(cb){
+        if (initializing){
+            fQueue.push({name:'getTree',args:[cb]});
+        } else {
+            getTree(cb);
+        }
+        return this;
+    };
+
+    function getTree(cb){
+        var r = {};
+
+        try {
+            r = root.toJSON({includeChildren:true});
+        } catch(e){
+            cb(e);
+            return;
+        }
+
+        cb(undefined,r);
+
+        return this;
+    };
+
     this.add = function(resource,cb){
         if (initializing){
             fQueue.push({name:'add',args:[resource,cb]});
@@ -155,28 +184,8 @@ function ResourceTree(opts,mocks){
         store.add(resource,function(err,ID){
             if(err)throw err;
             temp.id = ID;
-            resources[temp.id] = temp;
 
-            // resource saved successfully, emit an update:path event to register the routes
-            //  with the server.
-            self.emit('update:path',{
-                id:temp.id,
-                path:resources[temp.id].path,
-                http:resources[temp.id].http
-            });
-
-            // whenever the path changes in the future notify the server.
-            resources[temp.id].on('update:path',function(){
-                self.emit('update:path',{
-                    id:temp.id,
-                    path:resources[temp.id].path,
-                    http:resources[temp.id].http
-                });
-            });
-
-            if (resources[temp.id].isRoot){
-                root = resources[temp.id];
-            }
+            setupResource(temp);
 
             cb(undefined,resources[temp.id].toJSON());
         });
@@ -196,10 +205,39 @@ function ResourceTree(opts,mocks){
     function update(id,resource,cb){
         if (resources[id]){
             try {
-                resources[id].update(resource);
+                // if the resource type is changing we attempt to create a new resource
+                //  with the same configuration then replace the old resource before updating.
+                if (resource.type && resource.type != resources[id].type){
+                    var old = resources[id], newJSON, newResource;
+
+                    if(resourceFactories[resource.type]){
+
+                        newJSON = {
+                            id: old.id,
+                            name: old.name,
+                            parentId: old.parentId,
+                            parent: old.parent,
+                            type: resource.type,
+                            configuration: resource.configuration || {}
+                        };
+
+                        old.destroy();
+
+                        newResource = resourceFactories[newJSON.type].createResource(newJSON);
+                        setupResource(newResource);
+
+                    } else {
+                        cb(new Error('Resource type ' + resource.type + ' does not exist.'));
+                    }
+
+                } else {
+                    resources[id].update(resource);
+                }
+
                 store.replace(resources[id],function(err,changes){
                     cb(err,resources[id].toJSON());
                 });
+
             } catch(e){
                 cb(e);
             }
@@ -287,21 +325,39 @@ function ResourceTree(opts,mocks){
                     r.parent = resources[parentId];
                 }
 
-                resources[r.id] = resourceFactories[r.type].createResource(r);
-
-                resources[r.id].on('update:path',function(){
-                    self.emit('update:path',{
-                        id: resources[r.id].id,
-                        path:resources[r.id].path,
-                        http:resources[r.id].http
-                    });
-                });
+                var temp = resourceFactories[r.type].createResource(r);
+                setupResource(temp);
 
                 if (parentId === undefined){
                     root = resources[r.id];
                 }
                 traverseAndInstantiate(r.id);
             });
+        }
+    };
+
+    function setupResource(r){
+        resources[r.id] = r;
+
+        // resource saved successfully, emit an update:path event to register the routes
+        //  with the server.
+        self.emit('update:path',{
+            id:r.id,
+            path:resources[r.id].path,
+            http:resources[r.id].http
+        });
+
+        // whenever the path changes in the future notify the server.
+        resources[r.id].on('update:path',function(){
+            self.emit('update:path',{
+                id: resources[r.id].id,
+                path:resources[r.id].path,
+                http:resources[r.id].http
+            });
+        });
+
+        if (r.isRoot){
+            root = resources[r.id];
         }
     };
 
