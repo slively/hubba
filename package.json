@@ -1,6 +1,6 @@
 {
   "name": "hubba",
-  "version": "0.0.1",
+  "version": "0.0.1-3",
   "preferGlobal": false,
   "author": "Scott lively <scott.lively@gmail.com>",
   "description": "A node based services bus that allows for browser based editing of resources.",
@@ -49,6 +49,10 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=0.10.23"
+    "node": "0.10.x"
+  },
+  "subdomain": "hubba",
+  "scripts": {
+    "start": "node ./lib/server.js"
   }
 }
