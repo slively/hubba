@@ -1,22 +1,23 @@
 <div ng-controller="childResourceCtrl">
-
-	<span ng-class="{ 'glyphicon-minus': hasChildren(child.children) && child.expanded, 'glyphicon-plus': hasChildren(child.children) && !child.expanded, 'no-children': !hasChildren(child.children) }" ng-click="child.expanded=!child.expanded" class="glyphicon"></span>
-	<div class="btn-group">
-		<a class="btn btn-default btn-sm" ng-class="{'btn-primary':child.id == hubba.selectedResource.id}" href="/hubba-admin/resources/{{child.id}}?page=config">/{{child.name}}</a>
-		<button type="button" class="btn btn-default btn-sm dropdown-toggle" ng-class="{'btn-primary':child.id == hubba.selectedResource.id}" data-toggle="dropdown">
-	  		<span class="caret"></span>
-		</button>
-	  	<ul class="dropdown-menu" role="menu">
-			<li ng-repeat="verb in child.verbs"><a href="/hubba-admin/resources/{{child.id}}?page={{verb}}">{{verb}}</a></li>
-			<li class="divider"></li>
-	    	<li><a href="#"ng-click="addChild(child);child.expanded=true;">Add child</a></li>
-	    	<li class="divider"></li>
-	    	<li><a href="#">Delete Resource</a></li>
-	  	</ul>
-	</div>	
-	<ul ng-if="hasChildren(child.children)" ng-show="child.expanded">
-		<li ng-repeat="(key,child) in child.children">
-			<ng-include src="'/hubba-admin/partials/resourceTree.html'"></ng-include>
-		</li>
-	</ul>	
+    <div ng-if="!deleted">
+        <span ng-class="{ 'glyphicon-minus': hasChildren(child.children) && child.expanded, 'glyphicon-plus': hasChildren(child.children) && !child.expanded, 'no-children': !hasChildren(child.children) }" ng-click="child.expanded=!child.expanded" class="glyphicon"></span>
+        <div class="btn-group">
+            <a class="btn btn-default btn-sm" ng-class="{'btn-primary':child.id == hubba.selectedResource.id}" href="/hubba-admin/resources/{{child.id}}?page=config">/{{child.name}}</a>
+            <button type="button" class="btn btn-default btn-sm dropdown-toggle" ng-class="{'btn-primary':child.id == hubba.selectedResource.id}" data-toggle="dropdown">
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <li ng-repeat="verb in child.verbs"><a href="/hubba-admin/resources/{{child.id}}?page={{verb}}">{{verb}}</a></li>
+                <li class="divider"></li>
+                <li><a href="#" ng-click="addChild(child);child.expanded=true;">Add child</a></li>
+                <li class="divider"></li>
+                <li><a href="#" ng-click="deleteResource(child);">Delete Resource</a></li>
+            </ul>
+        </div>
+        <ul ng-if="hasChildren(child.children)" ng-show="child.expanded">
+            <li ng-repeat="(key,child) in child.children">
+                <ng-include src="'/hubba-admin/partials/resourceTree.html'"></ng-include>
+            </li>
+        </ul>
+    </div>
 </div>

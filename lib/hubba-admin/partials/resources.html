@@ -27,10 +27,13 @@
 	
 	<ul class="nav nav-tabs" id="myTab">
 	  	<li ng-class="{active:hubba.$route.params.page == 'config'}"><a href="{{hubba.selectedResource.id}}?page=config">Config</a></li>
-		<li ng-class="{active:hubba.$route.params.page == verb, disabled: !hasVerb(verb)}" ng-repeat="verb in ['GET','POST','PUT','PATCH','DELETE','HEAD']">
+        <li ng-class="{active:hubba.$route.params.page == 'security'}"><a href="{{hubba.selectedResource.id}}?page=security">Security</a></li>
+        <li ng-class="{active:hubba.$route.params.page == 'docs'}"><a href="{{hubba.selectedResource.id}}?page=docs">Docs</a></li>
+
+		<!--<li ng-class="{active:hubba.$route.params.page == verb, disabled: !hasVerb(verb)}" ng-repeat="verb in ['GET','POST','PUT','PATCH','DELETE','HEAD']">
 			<a ng-if="hasVerb(verb)" href="{{hubba.selectedResource.id}}?page={{verb}}" ng-click="determineResourceUrl(hubba.selectedResource);">{{verb}}</a>
 			<a ng-if="!hasVerb(verb)" href="">{{verb}}</a>
-		</li>
+		</li>-->
 	</ul>
 
 	<div class="tab-pane">
@@ -88,7 +91,8 @@
 			</div>
 			<button type="submit" class="btn btn-default">Save</button>
 		</form>
-		
+
+        <!--
 		<div ng-if="hubba.$route.params.page && hubba.$route.params.page != 'config'">
 			
 			<div class="row">
@@ -144,7 +148,7 @@
 					}
 				</div>
 			</div>
-		</div>
+		</div>-->
 		
 	</div>
 </div>
