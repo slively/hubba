@@ -17,7 +17,9 @@ exports.ResourceType = {
         optionsRadio: { inputType: 'radio', header:'header', value: 'a', options:['a','b'], required: true },
 
         defaultCheckbox: { inputType: 'checkbox', value: false },
-        optionsCheckbox: { inputType: 'checkbox', header:'header', value: true }
+        optionsCheckbox: { inputType: 'checkbox', header:'header', value: true },
+
+        password: { inputType: 'password', value: 'password' }
     },
     init: function(){
         var init = true;

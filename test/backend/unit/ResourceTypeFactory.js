@@ -214,7 +214,8 @@ describe('ResourceTypeFactory', function(){
                     defaultRadio: '',
                     optionsRadio: 'a',
                     defaultCheckbox: false,
-                    optionsCheckbox: true
+                    optionsCheckbox: true,
+                    password: ''
                 }
             });
             done();
