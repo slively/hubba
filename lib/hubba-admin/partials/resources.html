@@ -3,14 +3,12 @@
 		<li>
 			<div class="child" ng-controller="childResourceCtrl">
 				<div class="btn-group">
-					<a class="btn btn-default btn-sm" ng-class="{'btn-primary':resourcesRoot.id == hubba.selectedResource.id}" href="/hubba-admin/resources/{{resourcesRoot.id}}">/{{resourcesRoot.name}}</a>
+					<a class="btn btn-default btn-sm" ng-class="{'btn-primary':resourcesRoot.id == hubba.selectedResource.id}" disabled>/{{resourcesRoot.name}}</a>
 					<button type="button" class="btn btn-default btn-sm dropdown-toggle" ng-class="{'btn-primary':resourcesRoot.id == hubba.selectedResource.id}" data-toggle="dropdown">
 				  		<span class="caret"></span>
 					</button>
 				  	<ul class="dropdown-menu" role="menu">
 				    	<li><a href="#" ng-click="addChild(resourcesRoot)">Add child</a></li>
-				    	<li class="divider"></li>
-				    	<li><a href="#">Separated link</a></li>
 				  	</ul>
 				</div>
 			</div>
