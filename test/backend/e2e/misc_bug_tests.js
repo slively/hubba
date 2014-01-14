@@ -52,7 +52,7 @@ describe('Misc Bugs', function() {
                 assert.equal(data.configuration.port,465);
                 assert.equal(data.configuration.ssl,true);
                 assert.equal(data.configuration.username,'test');
-                assert.equal(data.configuration.password,'test');
+                assert.equal(data.configuration.password,'');
                 done();
             });
 
@@ -75,7 +75,7 @@ describe('Misc Bugs', function() {
                 assert.equal(465,data.configuration.port);
                 assert.equal(true,data.configuration.ssl);
                 assert.equal('testhubba@gmail.com',data.configuration.username);
-                assert.equal('hubbahubba',data.configuration.password);
+                assert.equal('',data.configuration.password);
                 done();
             });
 
