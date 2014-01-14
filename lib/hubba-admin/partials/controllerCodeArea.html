@@ -1,0 +1,11 @@
+<div class="row">
+    <div ng-include="'/hubba-admin/partials/resourceLink.html'"></div>
+    <div class="col-lg-9">
+
+        <div ng-model="code" ui-ace="{mode:'javascript'}"></div>
+    </div>
+    <div class="col-lg-3">
+        <button class="btn btn-primary" ng-click="updateControllerCode(verb,code,true)">Save</button>
+        <span ng-show="controllerWorking">working it....</span>
+    </div>
+</div>

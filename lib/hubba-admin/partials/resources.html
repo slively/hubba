@@ -28,19 +28,14 @@
         <li ng-class="{active:hubba.$route.params.page == 'security'}"><a href="{{hubba.selectedResource.id}}?page=security">Security</a></li>
         <li ng-class="{active:hubba.$route.params.page == 'docs'}"><a href="{{hubba.selectedResource.id}}?page=docs">Docs</a></li>
 
-		<!--<li ng-class="{active:hubba.$route.params.page == verb, disabled: !hasVerb(verb)}" ng-repeat="verb in ['GET','POST','PUT','PATCH','DELETE','HEAD']">
-			<a ng-if="hasVerb(verb)" href="{{hubba.selectedResource.id}}?page={{verb}}" ng-click="determineResourceUrl(hubba.selectedResource);">{{verb}}</a>
-			<a ng-if="!hasVerb(verb)" href="">{{verb}}</a>
-		</li>-->
+		<li ng-if="hubba.selectedResource.type === 'controller'" ng-class="{active:hubba.$route.params.page == verb}" ng-repeat="verb in ['GET','POST','PUT','PATCH','DELETE']">
+			<a href="{{hubba.selectedResource.id}}?page={{verb}}">{{verb}}</a>
+		</li>
 	</ul>
 
-	<div class="tab-pane">
+	<div ng-show="hubba.$route.params.page == 'config'" class="tab-pane">
 		
-		<div id="resource-link" class="">
-			<a class="accordion-toggle" ng-click="test.expanded=!test.expanded;" title="{{hubba.selectedResource.url}}" href="{{hubba.selectedResource.path}}" target="_blank">
-				{{hubba.selectedResource.path}}
-			</a>
-		</div>
+		<div ng-include="'/hubba-admin/partials/resourceLink.html'"></div>
 		
 		<form class="form" ng-submit="saveResource(hubba.selectedResource)" ng-if="hubba.$route.params.page == 'config'">
 
@@ -55,7 +50,7 @@
 			</div>
 
 
-			<div ng-repeat="(key,val) in hubba.resourceTypes[hubba.selectedResource.type].configuration" class="form-group">
+			<div ng-if="hubba.selectedResource.type !== 'controller'" ng-repeat="(key,val) in hubba.resourceTypes[hubba.selectedResource.type].configuration" class="form-group">
 
 				<label ng-if="val.inputType == 'text' || val.inputType == 'number' || val.inputType == 'select' || val.inputType == 'password'">{{key}}</label>
 				<label ng-if="val.inputType == 'checkbox' || val.inputType == 'radio' && val.header">{{val.header}}</label>
@@ -149,8 +144,26 @@
 		</div>-->
 		
 	</div>
+
+    <div ng-show="hubba.$route.params.page == 'security'" class="tab-pane">
+        security
+    </div>
+    <div ng-show="hubba.$route.params.page == 'docs'" class="tab-pane">
+        docs
+    </div>
+    <div ng-if="hubba.selectedResource.type === 'controller'" ng-show="hubba.$route.params.page == 'GET'" class="tab-pane">
+        <div h-controller-code="updateControllerCode" h-verb="get"></div>
+    </div>
+    <div ng-if="hubba.selectedResource.type === 'controller'" ng-show="hubba.$route.params.page == 'POST'" class="tab-pane">
+        <div h-controller-code="updateControllerCode" h-verb="post"></div>
+    </div>
+    <div ng-if="hubba.selectedResource.type === 'controller'" ng-show="hubba.$route.params.page == 'PUT'" class="tab-pane">
+        <div h-controller-code="updateControllerCode" h-verb="put"></div>
+    </div>
+    <div ng-if="hubba.selectedResource.type === 'controller'" ng-show="hubba.$route.params.page == 'PATCH'" class="tab-pane">
+        <div h-controller-code="updateControllerCode" h-verb="patch"></div>
+    </div>
+    <div ng-if="hubba.selectedResource.type === 'controller'" ng-show="hubba.$route.params.page == 'DELETE'" class="tab-pane">
+        <div h-controller-code="updateControllerCode" h-verb="del"></div>
+    </div>
 </div>
-
-
-
-

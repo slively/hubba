@@ -11,3 +11,4 @@
 #resource-link { padding: 8px; border-bottom: 1px solid #ddd; text-align: center; width: 100%; margin: -8px 0 20px 0; }
 .view-container.container { padding-bottom: 20px; }
 ul.expected-object-tree { list-style:none; margin: 0px; }
+.ace_editor { height: 500px; }
