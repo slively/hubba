@@ -18,30 +18,11 @@ describe('ResourceStore (file)', function(){
     });
 
     it ('should create a file store with a configured name successfully.', function(done){
-        rs = new ResourceStore({type:'file', name:'woo'});
+        rs = new ResourceStore({type:'file', name:'test'});
 
         setTimeout(function(){
-            fs.exists(__dirname+'/../../../lib/sqliteDB/woo.db', function(exists){
+            fs.exists(__dirname+'/../../../lib/sqliteDB/test.db', function(exists){
 
-                assert.ok(exists);
-                done();
-            });
-        },100);
-    });
-
-    it('should delete the database file woo.db',function(done){
-        rs.destroyStore();
-        fs.exists('../../../lib/sqliteDB/woo.db', function(exists){
-            assert.ok(!exists);
-            done();
-        });
-    });
-
-    it ('should create a file store with the default name successfully.', function(done){
-        rs = new ResourceStore({type:'file'});
-
-        setTimeout(function(){
-            fs.exists(__dirname+'/../../../lib/sqliteDB/hubba.db', function(exists){
                 assert.ok(exists);
                 done();
             });
@@ -115,9 +96,9 @@ describe('ResourceStore (file)', function(){
         });
     });
 
-    it('should delete the database file hubba.db',function(done){
+    it('should delete the database file test.db',function(done){
         rs.destroyStore();
-        fs.exists(__dirname+'/../../../lib/sqliteDB/hubba.db', function(exists){
+        fs.exists('../../../lib/sqliteDB/test.db', function(exists){
             assert.ok(!exists);
             done();
         });

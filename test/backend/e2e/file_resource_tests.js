@@ -43,7 +43,7 @@ describe('File Resource', function() {
     it('should successfully upload the test file.', function(done) {
         request.post('http://127.0.0.1:8081/api/file_resource_test',function(err,res,body){
             assert.ifError(err);
-            assert.equal(200,res.statusCode);
+            assert.equal(200,res.statusCode,body);
             assert.equal('"/api/file_resource_test/test1.png"',body);
             fs.exists(__dirname+'/files/test1' +
                 '.png',function(exists){

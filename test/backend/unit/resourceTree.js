@@ -11,8 +11,8 @@ var assert = require('assert-plus'),
             }
         }
 
-        this.createResource = function(){
-            return new mockResourceType({type:name});
+        this.createResource = function(r){
+            return new mockResourceType(r);
         };
     },
     mockResourceType = function(opt){
