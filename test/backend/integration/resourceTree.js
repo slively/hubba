@@ -12,8 +12,8 @@ describe('ResourceTree (file) 1st creation.',function(){
 
     var root;
 
-    it('should instantiate successfully with only default options.',function(done){
-        tree = new ResourceTree();
+    it('should instantiate successfully with a name of test.',function(done){
+        tree = new ResourceTree({store:{name:'test',type:'file'}});
         done();
     });
 
@@ -148,7 +148,7 @@ describe('ResourceTree (file) 2nd creation.',function(){
 
     it('should erase the data-store.',function(done){
         tree.destroy();
-        fs.exists(__dirname+'/../../../lib/sqliteDB/hubba.db', function(exists){
+        fs.exists(__dirname+'/../../../lib/sqliteDB/test.db', function(exists){
             assert.ok(!exists);
             done();
         });

@@ -65,7 +65,7 @@ module.exports = function(config) {
     singleRun: false,
 
     proxies: {
-        '/': 'http://localhost:8080/'
+        '/': 'http://localhost:8081/'
     }
 
   });
