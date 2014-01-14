@@ -4,7 +4,7 @@ var assert = require("assert-plus");
 
 describe('Misc Bugs', function() {
 
-    describe('Change resource type, update configuration an attempt to use the resource', function(){
+    describe('Change resource type, update configuration and attempt to use the resource', function(){
         var rootId, id, client = require('restify').createJsonClient({
             version: '*',
             url: 'http://127.0.0.1:8081'
@@ -34,9 +34,10 @@ describe('Misc Bugs', function() {
 
         });
 
-        it('should update to be a dummy email resource', function(done) {
+        it('should update to be a dummy email resource with a new name, type, and configuration in one call', function(done) {
 
             client.put('/hubba/api/resources/'+id, {
+                name: 'email',
                 type: 'email',
                 configuration: {
                     "host": "test",
@@ -48,6 +49,8 @@ describe('Misc Bugs', function() {
             }, function(err, req, res, data) {
                 assert.ifError(err);
                 id = data.id;
+                assert.equal(data.name,'email');
+                assert.equal(data.type,'email');
                 assert.equal(data.configuration.host,'test');
                 assert.equal(data.configuration.port,465);
                 assert.equal(data.configuration.ssl,true);
@@ -84,7 +87,7 @@ describe('Misc Bugs', function() {
 
         it('should successfully send an email.', function(done) {
             this.timeout(5000);
-            client.post('/api/test', {
+            client.post('/api/email', {
                 from: "testhubba@gmail.com",
                 to: "testhubba@gmail.com",
                 subject: "Hello world!",
