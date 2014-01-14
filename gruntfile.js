@@ -37,7 +37,7 @@ module.exports = function(grunt) {
                 }
             },
             'test-server': {
-                command: 'node ./lib/server.js --store "memory"',
+                command: 'node ./lib/server.js --store "memory" --port 8081',
                 options: {
                     async: true,
                     failOnError: true
