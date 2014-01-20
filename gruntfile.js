@@ -5,6 +5,9 @@ module.exports = function(grunt) {
     // Project configuration.
     grunt.initConfig({
         cafemocha: {
+            options: {
+                reporter: 'spec'
+            },
             'backend-unit' : {
                 src : 'test/backend/unit/*.js'
             },
@@ -13,6 +16,13 @@ module.exports = function(grunt) {
             },
             'backend-e2e' : {
                 src : ['test/backend/e2e/*.js']
+            },
+            'backend-coverage' : {
+                src: ['test/backend/unit/*.js','test/backend/integration/*.js','test/backend/e2e/*.js'],
+                options: {
+                reporter: 'html-cov',
+                    coverage: true
+                }
             }
         },
         karma : {

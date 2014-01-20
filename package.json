@@ -1,6 +1,6 @@
 {
   "name": "hubba",
-  "version": "0.0.1-8",
+  "version": "0.0.1-19",
   "preferGlobal": false,
   "author": "Scott lively <scott.lively@gmail.com>",
   "description": "A node based services bus that allows for browser based editing of resources.",
