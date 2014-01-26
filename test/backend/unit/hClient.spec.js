@@ -12,13 +12,11 @@ describe('HClient', function(){
         assert.func(client.updateRoute);
         assert.func(client.deleteRoute);
         assert.object(client.internalClient);
-        assert.object(client.internalClient.api);
-        assert.func(client.internalClient.api.GET);
-        assert.func(client.internalClient.api.POST);
-        assert.func(client.internalClient.api.PUT);
-        assert.func(client.internalClient.api.PATCH);
-        assert.func(client.internalClient.api.DELETE);
-        assert.string(client.externalClient);
+        assert.func(client.internalClient.get);
+        assert.func(client.internalClient.post);
+        assert.func(client.internalClient.put);
+        assert.func(client.internalClient.patch);
+        assert.func(client.internalClient.del);
     });
 
     describe('internal client',function(){
@@ -39,7 +37,7 @@ describe('HClient', function(){
 
         it('/api should have a working HTTP GET handler.',function(done){
             this.timeout(100);
-            client.internalClient.api.GET('/api').then(function(result,code,cfg){
+            client.internalClient.get('/api').then(function(result,code,cfg){
                 assert.object(result);
                 done();
             });
@@ -47,7 +45,7 @@ describe('HClient', function(){
 
         it('/api should have a working HTTP POST handler.',function(done){
             this.timeout(100);
-            client.internalClient.api.POST('/api').catch(function(result,code,cfg){
+            client.internalClient.post('/api').catch(function(result,code,cfg){
                 // fyi this will timeout if the assertion is no satisfied.
                 //  for some reason I am not seeing an error.
                 assert.equal(code,404);
@@ -57,7 +55,7 @@ describe('HClient', function(){
 
         it('/api should have a working HTTP PUT handler.',function(done){
             this.timeout(100);
-            client.internalClient.api.PUT('/api').catch(function(result,code,cfg){
+            client.internalClient.put('/api').catch(function(result,code,cfg){
                 assert.equal(code,500);
                 done();
             });
@@ -65,7 +63,7 @@ describe('HClient', function(){
 
         it('/api should have a working HTTP PATCH handler.',function(done){
             this.timeout(100);
-            client.internalClient.api.PATCH('/api').then(function(result,code){
+            client.internalClient.patch('/api').then(function(result,code){
                 assert.equal('testing',result);
                 assert.equal(200,code);
                 done();
@@ -75,7 +73,7 @@ describe('HClient', function(){
         it('/api should have a working HTTP DELETE handler.',function(done){
             this.timeout(100);
 
-            client.internalClient.api.DELETE('/api').then(function(result,code){
+            client.internalClient.del('/api').then(function(result,code){
                 assert.equal(200,code);
                 done();
             });
