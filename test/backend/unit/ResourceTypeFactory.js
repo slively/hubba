@@ -191,12 +191,117 @@ describe('ResourceTypeFactory', function(){
             done();
         });
 
+        it('should have a toJSON function that returns the correct json representation of the factory.', function(){
+            assert.deepEqual(mockResourceTypeFactory.toJSON(),{
+                "name": "mock",
+                "label": "Mock",
+                "filePath": "/Users/slively/dev/hubba/test/backend/unit/mockResourceType/mock.js",
+                "configuration": {
+                    "defaultText": {
+                        "inputType": "text",
+                        "value": ""
+                    },
+                    "optionsText": {
+                        "inputType": "text",
+                        "placeholder": "placeholder",
+                        "value": "default",
+                        "required": true
+                    },
+                    "defaultSelectMultiple": {
+                        "inputType": "select",
+                        "value": [
+                            ""
+                        ],
+                        "multiple": true,
+                        "options": [
+                            ""
+                        ]
+                    },
+                    "optionsSelectMultiple": {
+                        "inputType": "select",
+                        "value": [
+                            1,
+                            2
+                        ],
+                        "multiple": true,
+                        "options": [
+                            1,
+                            2
+                        ],
+                        "placeholder": "placeholder",
+                        "required": true
+                    },
+                    "defaultSelect": {
+                        "inputType": "select",
+                        "value": "",
+                        "options": [
+                            ""
+                        ]
+                    },
+                    "optionsSelect": {
+                        "inputType": "select",
+                        "placeholder": "placeholder",
+                        "value": "a",
+                        "options": [
+                            "a",
+                            "b"
+                        ],
+                        "required": true
+                    },
+                    "defaultRadio": {
+                        "inputType": "radio",
+                        "value": "",
+                        "options": [
+                            ""
+                        ]
+                    },
+                    "optionsRadio": {
+                        "inputType": "radio",
+                        "header": "header",
+                        "value": "a",
+                        "options": [
+                            "a",
+                            "b"
+                        ],
+                        "required": true
+                    },
+                    "defaultCheckbox": {
+                        "inputType": "checkbox",
+                        "value": false
+                    },
+                    "optionsCheckbox": {
+                        "inputType": "checkbox",
+                        "header": "header",
+                        "value": true
+                    },
+                    "password": {
+                        "inputType": "password",
+                        "value": "password"
+                    }
+                },
+                "configurationKeys": [
+                    "defaultText",
+                    "optionsText",
+                    "defaultSelectMultiple",
+                    "optionsSelectMultiple",
+                    "defaultSelect",
+                    "optionsSelect",
+                    "defaultRadio",
+                    "optionsRadio",
+                    "defaultCheckbox",
+                    "optionsCheckbox",
+                    "password"
+                ],
+                "wildcardRoute": false
+            });
+        });
+
         it ('should instantiate successfully.', function(done){
             mockResourceType = mockResourceTypeFactory.createResource();
             done();
         });
 
-        it ('should have the correctly specified configuration items and label.', function(done){
+        it ('should have the correctly specified configuration items and label.', function(){
             assert.deepEqual(mockResourceType.toJSON(),{
                 id: undefined,
                 name: undefined,
@@ -216,9 +321,21 @@ describe('ResourceTypeFactory', function(){
                     defaultCheckbox: false,
                     optionsCheckbox: true,
                     password: ''
-                }
+                },
+                configurationKeys: [
+                    'defaultText',
+                    'optionsText',
+                    'defaultSelectMultiple',
+                    'optionsSelectMultiple',
+                    'defaultSelect',
+                    'optionsSelect',
+                    'defaultRadio',
+                    'optionsRadio',
+                    'defaultCheckbox',
+                    'optionsCheckbox',
+                    'password'
+                ]
             });
-            done();
         });
 
         it ('should throw an error trying to validate the configuration because the configuration is not an object.', function(done){
