@@ -17,6 +17,10 @@ module.exports = function(grunt) {
             'backend-e2e' : {
                 src : ['test/backend/e2e/*.js']
             },
+
+            'backend-e2e-rest' : {
+                src : ['test/backend/e2e/rest_resource_tests.js']
+            },
             'backend-coverage' : {
                 src: ['test/backend/unit/*.js','test/backend/integration/*.js','test/backend/e2e/*.js'],
                 options: {
@@ -47,7 +51,7 @@ module.exports = function(grunt) {
                 }
             },
             'test-server': {
-                command: 'node ./lib/server.js --store "memory" --port 8081',
+                command: 'node ./lib/server.js --test-server',
                 options: {
                     async: true,
                     failOnError: true
@@ -71,6 +75,13 @@ module.exports = function(grunt) {
 
     grunt.registerTask('test-backend-integration', [
         'cafemocha:backend-integration'
+    ]);
+
+    grunt.registerTask('test-backend-e2e-rest', [
+        'shell:kill-test-servers',
+        'shell:test-server',
+        'cafemocha:backend-e2e-rest',
+        'shell:test-server:kill'
     ]);
 
     grunt.registerTask('test-backend-e2e', [
