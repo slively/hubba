@@ -1,22 +1,10 @@
-var assert= require('assert-plus'),
+var util = require('util'),
+    assert= require('assert-plus'),
     Resource = require("../../../lib/resource").Resource,
     r,
     r2;
 
 describe('Resource', function(){
-
-    /*
-    it('should require an id.',function(done){
-        assert.throws(
-            function() {
-                new Resource();
-            },
-            /Resource must have an id/
-        );
-
-        done();
-    });
-    */
 
     it('should require a name.',function(done){
         assert.throws(
@@ -67,6 +55,27 @@ describe('Resource', function(){
         assert.equal(r.name, 'test');
         done();
     });
+
+    /*
+        This is a placeholder test to demonstrate an oustanding refactoring issue.
+        A resource on construction should not modify another resource.
+
+    it('should not be added to the root when inherited and throwing an error', function(done){
+
+        function rType(){
+            Resource.call(this,{name:'rtype',parent:r});
+            throw 'validation error';
+        };
+        util.inherits(rType, Resource);
+
+        assert.throws(function(){
+            var t = new rType();
+        },'validation error');
+
+        assert.ok(r.children.rtype === undefined,'rtype should not be a child of the root.');
+        done();
+    });
+     */
 
     it('should be created successfully with a parentId of 1.',function(done){
         r2 = new Resource({id:1,name:'test', parent:r});
