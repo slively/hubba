@@ -18,7 +18,10 @@ describe('ResourceTypesLoader',function(){
 
         done();
     });
-
+/*
+    This test is no longer really valid because valid configuration
+    is checked up resource creation.
+    
     it('should test all of the factories: ',function(done){
         for ( var name in factories ){
 
@@ -40,5 +43,5 @@ describe('ResourceTypesLoader',function(){
         };
         done();
     });
-
+*/
 });

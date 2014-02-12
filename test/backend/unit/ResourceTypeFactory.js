@@ -387,6 +387,35 @@ describe('ResourceTypeFactory', function(){
             done();
         });
 
+        it('should fail to validate because optionsText is required',function(done){
+            assert.throws(
+                function(){
+                    mockResourceType.emit('validate',{
+                        configuration: {
+                            optionsText: ''
+                        }
+                    });
+                },
+                /is required/
+            );
+            done();
+        });
+
+        it('should fail to validate because optionsSelectMultiple is required',function(done){
+            assert.throws(
+                function(){
+                    mockResourceType.emit('validate',{
+                        configuration: {
+                            optionsSelectMultiple: []
+                        }
+                    });
+                },
+                /is required/
+            );
+            done();
+        });
+
+
         it('should successfully validate a new configuration.',function(done){
             mockResourceType.emit('validate',{
                 configuration: {

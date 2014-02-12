@@ -73,7 +73,7 @@ describe('ResourceTree (file) 1st creation.',function(){
     });
 
     it('should change the type of "area" to redirect',function(done){
-        tree.update(area.id,{type:'redirect'},function(err,result){
+        tree.update(area.id,{type:'redirect',configuration:{url:'http://dummy.com'}},function(err,result){
             assert.ifError(err);
             assert.equal(result.type,'redirect');
             done();
