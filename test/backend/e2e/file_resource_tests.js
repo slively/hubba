@@ -44,7 +44,7 @@ describe('File Resource', function() {
         request.post('http://127.0.0.1:8081/api/file_resource_test',function(err,res,body){
             assert.ifError(err);
             assert.equal(200,res.statusCode,body);
-            assert.equal('"/api/file_resource_test/test1.png"',body);
+            assert.equal("/api/file_resource_test/test1.png",body);
             fs.exists(__dirname+'/files/test1' +
                 '.png',function(exists){
                 assert.ok(exists);
@@ -65,7 +65,7 @@ describe('File Resource', function() {
         request.put('http://127.0.0.1:8081/api/file_resource_test/test1.png',function(err,res,body){
             assert.ifError(err);
             assert.equal(200,res.statusCode,body);
-            assert.equal('"/api/file_resource_test/test_renamed.png"',body);
+            assert.equal("/api/file_resource_test/test_renamed.png",body);
             fs.exists(__dirname+'/files/test_renamed.png',function(exists){
                 assert.ok(exists);
                 done();
@@ -107,12 +107,12 @@ describe('File Resource', function() {
     // get the 2 files
     // delete the 2 files
     // fail at getting the 2 files
-
+/*
     it('DELETE /hubba/api/resources should delete "file_resource_test" return a 200 response.', function(done) {
         client.del('/hubba/api/resources/'+id, function(err, req, res, data) {
             assert.ifError(err);
             done();
         });
-    });
+    });*/
 
 });

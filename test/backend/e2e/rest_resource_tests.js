@@ -23,25 +23,34 @@ describe('Rest Resource', function() {
         });
     });
 
-	it('POST new rest resource called "rest_resource" to /hubba/api/resources and should return a 200 response.', function(done) {
+	it('POST new rest resource called "rest_resource" to /hubba/api/resources and should return an error because no url is defined.', function(done) {
 	
 		client.post('/hubba/api/resources', {
 			"parentId": rootId,
 			"name": "rest_resource",
 			"type": "rest"
 		}, function(err, req, res, data) {
-			assert.ifError(err);
-			id = data.id;
+            assert.ok(err.message.indexOf('required: url') > -1, 'Should have gotten an error when creating resource.');
 			done();
 		});
 		
 	});
 
-    it('should throw an error when trying to call the new resource because a url was not given.', function(done){
-        client.get('/api/rest_resource', function(err, req, res, data){
-            assert.ok(err.message.indexOf('uri is a required argument') > -1,'Should have gotten an error when calling GET on resource.');
+    it('POST new rest resource called "rest_resource" to /hubba/api/resources and get a 200 response.', function(done) {
+
+        client.post('/hubba/api/resources', {
+            "parentId": rootId,
+            "name": "rest_resource",
+            "type": "rest",
+            configuration: {
+                url: 'temp'
+            }
+        }, function(err, req, res, data) {
+            assert.ifError(err);
+            id = data.id;
             done();
         });
+
     });
 
 	it('PUT /hubba/api/resources should update "rest_resource" to "test_proxy" and return a 200 response.', function(done) {
@@ -85,7 +94,7 @@ describe('Rest Resource', function() {
         testClient.post('/api/test_proxy/resource/1?a=1&b=2', {data:{the:{data:'is here!'}}}, function(err, req, res, data){
             assert.ifError(err,err);
             assert.equal(data.path,'/api-test/rest/resource/1');
-            assert.equal(JSON.stringify(data.params),'{"a":"123","b":"2"}');
+            assert.equal(JSON.stringify(data.query),'{"a":"123","b":"2"}');
             assert.equal(JSON.stringify(data.body),'{"data":{"the":{"data":"is here!"}}}');
             assert.equal(data.headers.testheader,'test-value');
             done();
@@ -127,7 +136,7 @@ describe('Rest Resource', function() {
     it('should call the /api/test_proxy as /api/test_proxy?a=2&b=2 and not receive back the query params or body.',function(done){
         testClient.post('/api/test_proxy?a=1&b=2', {data:{the:{data:'is here!'}}}, function(err, req, res, data){
             assert.ifError(err);
-            assert.equal(JSON.stringify(data.params),'{"a":"123"}');
+            assert.equal(JSON.stringify(data.query),'{"a":"123"}');
             assert.equal(JSON.stringify(data.body),'{}');
             assert.equal(data.headers.testheader,undefined);
             done();
@@ -140,5 +149,5 @@ describe('Rest Resource', function() {
             done();
 		});
 	});
-	
+
 });
