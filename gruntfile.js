@@ -45,7 +45,7 @@ module.exports = function(grunt) {
         },
         shell: {
             'kill-test-servers': {
-                command: "kill $( ps aux | grep '[s]erver.js' | awk '{print $2}')",
+                command: "kill $( ps aux | grep '[s]erver.js --test-server' | awk '{print $2}')",
                 options: {
                     failOnError: false
                 }
