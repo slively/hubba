@@ -1,0 +1,15 @@
+<p>Email resources enable a web service call to send emails using the credentials entered into the configuration.</p>
+<p>It uses <strong><a href="http://www.nodemailer.com/">nodemailer</a></strong> and the configuration, request, and response will reflect that library.</p>
+
+<h3>POST (send email)</h3>
+<strong>Request</strong>
+<pre>
+{
+    from: "me@domain.com",
+    to: "you@otherdomain.com",
+    subject: "Hello you!",
+    text: "Plaintext body",
+    html: "&lt;h1&gt;>Big HTML body!&lt;/h1&gt;"
+}</pre>
+<strong>Response</strong>
+<pre>success/error message</pre>
