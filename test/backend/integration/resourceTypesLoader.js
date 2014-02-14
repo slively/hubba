@@ -11,9 +11,8 @@ describe('ResourceTypesLoader',function(){
 
     it('should read in all the standard resource type configurations and create the factories.',function(done){
         factories = new ResourceTypesLoader();
-
         for (var key in factories){
-            assert.ok(files.indexOf(key+'.js') > -1);
+            assert.ok(files.indexOf(key) > -1);
         }
 
         done();

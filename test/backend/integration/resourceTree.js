@@ -26,7 +26,7 @@ describe('ResourceTree (file) 1st creation.',function(){
             types = result;
 
             types.forEach(function(type){
-                assert.ok(files.indexOf(type.name+'.js') > -1);
+                assert.ok(files.indexOf(type.name) > -1);
             });
 
             done();
