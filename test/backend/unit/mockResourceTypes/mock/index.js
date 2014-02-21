@@ -47,5 +47,5 @@ exports.ResourceType = {
     },
     DELETE: function(resource,req,res){
         res.send('Woo!');
-    },
+    }
 };
