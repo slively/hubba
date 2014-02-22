@@ -334,7 +334,9 @@ describe('ResourceTypeFactory', function(){
                     'defaultCheckbox',
                     'optionsCheckbox',
                     'password'
-                ]
+                ],
+                version: undefined,
+                isRoot: undefined
             });
         });
 

@@ -50,14 +50,29 @@ describe('Resource', function(){
         done();
     });
 
+    it('version must be a number on initialization', function(done){
+        assert.throws(function(){
+            r.update({id:1,name:'test',isRoot: true,version:'bad'});
+        },"Resource version (number) is required");
+        done();
+    });
+
     it ('should be created successfully as a root Resource.', function(done){
-        r = new Resource({id:1,name:'test', isRoot: true});
+        r = new Resource({id:1,name:'test',isRoot: true});
+
+        assert.equal(r.id, 1);
+        assert.equal(r.isRoot, true);
         assert.equal(r.name, 'test');
+        assert.equal(r.version, 1);
+        assert.equal(JSON.stringify(r.children), "{}");
+        assert.equal(r.path, '/test');
+        assert.equal(r.childRoutes, false);
+
         done();
     });
 
     /*
-        This is a placeholder test to demonstrate an oustanding refactoring issue.
+        This is a placeholder test to demonstrate an outstanding refactoring issue.
         A resource on construction should not modify another resource.
 
     it('should not be added to the root when inherited and throwing an error', function(done){
@@ -79,8 +94,17 @@ describe('Resource', function(){
 
     it('should be created successfully with a parentId of 1.',function(done){
         r2 = new Resource({id:1,name:'test', parent:r});
+
         assert.equal(1, r2.parentId);
+        assert.equal(r2.id, 1);
+        assert.equal(r2.isRoot, undefined);
+        assert.equal(r2.name, 'test');
+        assert.equal(r2.version, 1);
+        assert.equal(JSON.stringify(r2.children), "{}");
         assert.equal(r2.path, '/test/test');
+        assert.equal(r2.childRoutes, false);
+        assert.equal(r.children.test,r2);
+
         done();
     });
 
@@ -91,7 +115,7 @@ describe('Resource', function(){
             assert.equal(r2.path,'/test2/test');
             done();
         });
-        r.update({name:'test2'})
+        r.update({name:'test2'});
     });
 
     it ('should throw an error when trying to destroy because it has a child.', function(done){
@@ -103,7 +127,6 @@ describe('Resource', function(){
         );
         done();
     });
-
 
     it ('should destroy the child resource successfully.', function(done){
         r.children.test.on('destroy',function(){
