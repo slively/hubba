@@ -21,11 +21,7 @@ ul.expected-object-tree { list-style:none; margin: 0px; }
 #resourcePane .portlet-heading a:hover { color: #FDEBD0; }
 #resourcePane .portlet-title h4 { margin: 0px; }
 #resourcePane .portlet-title { margin: 0 auto; text-align: center; position: relative; top: 0px; float: none; }
-#resourcePane .saving-spinner { position: absolute;
-    top: -40px;
-    right: 30px;
-    font-size: 20px;
-}
+#resourcePane .saving-spinner { position: absolute; top: -45px; font-size: 20px; color: white; }
 #resourcePane .help-pane .help-title-container { border-bottom: 1px solid #34495e; margin: -20px 0 20px 0; }
 #resourcePane .help-pane .help-title { display: block; text-align: center; }
 .resource-row .fa, .btn.btn-link { color: #34495E; }

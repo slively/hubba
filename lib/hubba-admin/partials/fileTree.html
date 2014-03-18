@@ -1,0 +1,19 @@
+<div ng-controller="childFileCtrl" class="resource-row">
+
+    <div ng-if="isFile(child)" class="btn-group">
+        <a class="btn btn-link" ng-class="{'orange-text':child == hubba.selectedFile.id}" href="/hubba-admin/files/{{child}}">{{key}}</a>
+    </div>
+
+    <div ng-if="isFolder(child)">
+        <a class="btn btn-link" ng-click="child.__expanded__=!child.__expanded__">
+            <span ng-class="{ 'fa-caret-down': child.__expanded__, 'fa-caret-right': !child.__expanded__ }" class="fa tree-toggle"></span>
+            {{key}}
+        </a>
+        <ul ng-show="child.__expanded__" class="resource-child-list">
+            <li ng-repeat="(key,child) in child">
+                <ng-include src="'/hubba-admin/partials/fileTree.html'"></ng-include>
+            </li>
+        </ul>
+    </div>
+
+</div>

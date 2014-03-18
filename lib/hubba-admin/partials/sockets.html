@@ -1,0 +1,79 @@
+<div class="row" style="padding: 30px 0;">
+<div id="resources" class="col-lg-2">
+    <div class="portlet portlet-default">
+        <div class="panel-collapse in" style="height: auto;">
+            <div class="portlet-body">
+                <ul>
+                    <li>
+                        <button class="btn btn-orange btn-sm" ng-hide="showNewSocketInput" ng-click="newSocket();"><i class="fa fa-plus"></i></button>
+                        <button class="btn red btn-sm" ng-show="showNewSocketInput" ng-disabled="newSocketSaving" ng-click="showNewSocketInput=false;"><i class="fa fa-minus" style="color:#fff;"></i></button>
+                    </li>
+                    <li ng-show="showNewSocketInput">
+                        <input id="newSocketInput" type="text" ng-model="newSocketName" ng-keypress="saveNewSocket($event);" ng-focus="showNewSocketInput" ng-disabled="newSocketSaving" class="form-control" placeholder="myevent"/>
+                    </li>
+                    <li ng-repeat="socket in hubba.sockets.cache | orderBy:'name'">
+                        <a class="btn btn-link"
+                           ng-class="{'orange-text':socket.name == hubba.selectedSocket.name}"
+                           href="/hubba-admin/sockets/{{socket.name}}">
+                            {{socket.name}}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="resourcePane" class="col-lg-10">
+    <div class="alert alert-danger" ng-show="hubba.errors.length">
+        <button type="button" class="close" ng-click="hubba.errors = [];">×</button>
+        <p ng-repeat="err in hubba.errors">
+            {{err.message}}
+        </p>
+    </div>
+
+    <div class="alert alert-info" ng-hide="hubba.selectedSocket">
+        <center>
+            Select a socket to get started.
+        </center>
+    </div>
+
+    <div class="portlet portlet-default" ng-show="hubba.selectedSocket">
+
+        <div class="portlet-heading">
+            <a ng-click="deleteSocket(hubba.selectedSocket);" style="position: absolute; color: #e74c3c; top: 0; right: 0; cursor: pointer; font-size: 20px; z-index: 999;" class="btn link">
+                <i class="fa fa-times"></i>
+            </a>
+            <div class="portlet-title">{{hubba.selectedSocket.name}}</div>
+
+            <div class="clearfix"></div>
+        </div>
+        <div class="portlet-body">
+            <ul class="nav nav-pills nav-pills-square">
+                <li ng-class="{active:hubba.selectedSocketMethod == 'default' || hubba.selectedSocketMethod == undefined}">
+                    <a href="{{hubba.selectedSocket.name}}?method=default">{{hubba.selectedSocket.name}}</a>
+                </li>
+                <li ng-repeat="(name,val) in hubba.selectedSocket.methods" ng-if="name!='default'"  ng-class="{active:hubba.selectedSocketMethod == name}">
+                    <a href="{{hubba.selectedSocket.name}}?method={{name}}">{{hubba.selectedSocket.name}}:{{name}}</a>
+                </li>
+                <li style="margin: 11px 0 0 15px;">
+                    <button class="btn btn-orange btn-xs" ng-hide="showNewSocketMethodInput" ng-click="newSocketMethod();"><i class="fa fa-plus"></i></button>
+                    <button class="btn btn-red btn-xs" ng-show="showNewSocketMethodInput" ng-click="showNewSocketMethodInput=false;" style="margin-top: -4px;"><i class="fa fa-minus" style="color:#fff;"></i></button>
+                    <input id="newSocketMethodInput" type="text" required style="width:100px;height:26px;display:inline;padding:6px;" class="form-control" ng-model="newSocketMethodName" ng-show="showNewSocketMethodInput" ng-keypress="saveNewSocketMethod($event);"></a>
+                </li>
+            </ul>
+
+            <div class="tab-pane">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <span><i class="fa fa-spin fa-spinner saving-spinner" ng-show="socketSaving"></i></span>
+                        <div ng-model="hubba.selectedSocket.methods[hubba.selectedSocketMethod]" ng-change="socketAutoSave(hubba.selectedSocket);" ui-ace="{mode:'javascript',onLoad:aceLoaded}"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.portlet-body -->
+        </div>
+
+    </div>
+</div>
+</div>

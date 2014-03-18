@@ -44,7 +44,7 @@
     <div class="portlet portlet-default" ng-if="hubba.selectedResource.id && hubba.selectedResource.id.toString() === hubba.$route.params.resourcesId">
         <div class="portlet-heading">
             <div class="portlet-title">
-                <a ng-click="test.expanded=!test.expanded;" title="{{hubba.selectedResource.path.replace('*','')}}" href="{{hubba.selectedResource.path.replace('*','')}}" target="_blank">
+                <a title="{{hubba.selectedResource.path.replace('*','')}}" href="{{hubba.selectedResource.path.replace('*','')}}" target="_blank">
                     {{hubba.selectedResource.path.replace('*','')}}
                 </a>
             </div>
