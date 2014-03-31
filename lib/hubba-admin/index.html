@@ -3,8 +3,10 @@
 <head>
     <title>Welcome to Hubba!</title>
 
-    <script type="text/javascript" src="http://code.angularjs.org/snapshot/angular.min.js"></script>
-    <script type="text/javascript" src="http://code.angularjs.org/snapshot/angular-route.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="/hubba-admin/static/lodash.min.js"></script>
+    <script type="text/javascript" src="/hubba-admin/static/angular.min.js"></script>
     <script type="text/javascript" src="/hubba-admin/static/ace/ace.js"></script>
     <script type="text/javascript" src="/hubba-admin/static/ui-ace.min.js"></script>
     <script type="text/javascript" src="/hubba-admin/static/hubba.js"></script>
@@ -16,8 +18,8 @@
 
     <!-- GLOBAL STYLES - Include these on every page. -->
     <link href="/hubba-admin/static/theme/css/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href='http://fonts.googleapis.com/css?family=Ubuntu:300,400,500,700,300italic,400italic,500italic,700italic' rel="stylesheet" type="text/css">
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel="stylesheet" type="text/css">
+    <!--<link href='http://fonts.googleapis.com/css?family=Ubuntu:300,400,500,700,300italic,400italic,500italic,700italic' rel="stylesheet" type="text/css">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel="stylesheet" type="text/css">-->
     <link href="/hubba-admin/static/theme/icons/font-awesome/css/font-awesome.min.css" rel="stylesheet">
 
     <!-- PAGE LEVEL PLUGIN STYLES -->
@@ -26,7 +28,7 @@
     <link href="/hubba-admin/static/theme/css/plugins/daterangepicker/daterangepicker-bs3.css" rel="stylesheet">
     <link href="/hubba-admin/static/theme/css/plugins/morris/morris.css" rel="stylesheet">
     <link href="/hubba-admin/static/theme/css/plugins/jvectormap/jquery-jvectormap-1.2.2.css" rel="stylesheet">
-    <link href="/hubba-admin/static/theme/css/plugins/datatables/datatables.css" rel="stylesheet">
+    <!-- <link href="/hubba-admin/static/theme/css/plugins/datatables/datatables.css" rel="stylesheet"> -->
 
     <!-- THEME STYLES - Include these on every page. -->
     <link href="/hubba-admin/static/theme/css/style.css" rel="stylesheet">
@@ -44,15 +46,6 @@
 
 </head>
 <body ng-controller="body" id="wrapper">
-<!--<div class="navbar" role="navigation">
-    <ul class="nav navbar-nav">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="/hubba-admin">Hubba</a>
-        </div>
-        <li ng-class="{active:hubba.$route.path.indexOf('/resources') > -1}"><a href="/hubba-admin/resources">Resources</a></li>
-        <li ng-class="{active:hubba.$route.path=='/hubba-admin/files/'}"><a href="/hubba-admin/files">Files</a></li>
-    </ul>
-</div>-->
 
 <nav class="navbar-top" role="navigation">
 
@@ -100,9 +93,15 @@
                 </a>
             </li>
 
-            <li>
+            <!--<li>
                 <a ng-class="{active:hubba.$route.path.indexOf('/resources') > -1}"href="/hubba-admin/resources">
                     <i class="fa fa-cog"></i> Resources
+                </a>
+            </li>-->
+
+            <li>
+                <a ng-class="{active:hubba.$route.path.indexOf('/services') > -1}" href="/hubba-admin/services">
+                    <i class="fa fa-cog"></i> Services
                 </a>
             </li>
             <li>
@@ -113,6 +112,11 @@
             <li>
                 <a ng-class="{active:hubba.$route.path.indexOf('/files') > -1}" href="/hubba-admin/files">
                     <i class="fa fa-files-o"></i> Files
+                </a>
+            </li>
+            <li>
+                <a ng-class="{active:hubba.$route.path.indexOf('/logs') > -1}" href="/hubba-admin/logs">
+                    <i class="fa fa-list"></i> Logs
                 </a>
             </li>
             <li>
@@ -136,7 +140,7 @@
 
 
 <!-- GLOBAL SCRIPTS -->
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
+<script src="/hubba-admin/static/jquery.min.js" type="text/javascript"></script>
 <script src="/hubba-admin/static/theme/js/plugins/bootstrap/bootstrap.min.js" type="text/javascript"></script>
 <script src="/hubba-admin/static/theme/js/plugins/slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
 <script src="/hubba-admin/static/theme/js/plugins/popupoverlay/jquery.popupoverlay.js" type="text/javascript"></script>
@@ -190,9 +194,9 @@
 <script src="/hubba-admin/static/theme/js/demo/map-demo-data.js"></script>
 <!-- Easy Pie Chart -->
 <script src="/hubba-admin/static/theme/js/plugins/easypiechart/jquery.easypiechart.min.js"></script>
-<!-- DataTables -->
+<!-- DataTables
 <script src="/hubba-admin/static/theme/js/plugins/datatables/jquery.dataTables.js"></script>
-<script src="/hubba-admin/static/theme/js/plugins/datatables/datatables-bs3.js"></script>
+<script src="/hubba-admin/static/theme/js/plugins/datatables/datatables-bs3.js"></script>-->
 
 <!-- THEME SCRIPTS -->
 <script src="/hubba-admin/static/theme/js/flex.js"></script>

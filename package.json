@@ -1,20 +1,16 @@
 {
   "name": "hubba",
-  "version": "0.0.1-19",
+  "version": "0.0.9",
   "preferGlobal": false,
-  "author": "Scott lively <scott.lively@gmail.com>",
-  "description": "A node based services bus that allows for browser based editing of resources.",
+  "author": "Scott lively",
+  "description": "A tool to build web services, sockets, and edit static files with automated testing and pipeline all through a browser.",
   "contributors": [],
   "main": "./lib",
   "repository": {
     "type": "git",
     "url": "https://github.com/slively/hubba.git"
   },
-  "keywords": [
-    "service bus",
-    "rest",
-    "soap"
-  ],
+  "keywords": [],
   "dependencies": {
     "restify": "~2.6.1",
     "nodemailer": "~0.5.15",
@@ -27,7 +23,20 @@
     "optimist": "~0.6.0",
     "redis": "~0.9.2",
     "express": "~3.4.8",
-    "writefile": "~0.2.7"
+    "writefile": "~0.2.7",
+    "hubba-adapter-area": "0.0.3",
+    "hubba-adapter-controller": "0.0.0",
+    "hubba-adapter-email": "0.0.0",
+    "hubba-adapter-file": "0.0.0",
+    "hubba-adapter-ldap": "0.0.0",
+    "hubba-adapter-mysql": "0.0.0",
+    "hubba-adapter-postgres": "0.0.0",
+    "hubba-adapter-redirect": "0.0.0",
+    "hubba-adapter-redis": "0.0.0",
+    "hubba-adapter-rest": "0.0.0",
+    "hubba-adapter-soap": "0.0.0",
+    "rimraf": "~2.2.6",
+    "node-uuid": "~1.4.1"
   },
   "devDependencies": {
     "mocha": "~1.15.1",
@@ -48,7 +57,6 @@
     "grunt-cafe-mocha": "~0.1.10",
     "grunt-shell-spawn": "~0.3.0"
   },
-  "license": "MIT",
   "engines": {
     "node": "0.10.x"
   },
