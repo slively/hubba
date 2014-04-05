@@ -26,18 +26,26 @@ describe('Area Resource', function() {
 		});
 	});
 
-	it('root resource should throw an error when adding a child without a name, type, or parentId', function(done) {
+	it('root resource should throw an error when adding a child without a name', function(done) {
 		client.post('/hubba/api/resources', { type : 'area', parentId: rootId }, function(err){
 			assert.ok(err.message.indexOf('Resource must have a name of length > 0') > -1);
-			client.post('/hubba/api/resources', { name : 'test', parentId: rootId }, function(err){
-                assert.ok(err.message.indexOf('Resource type undefined is invalid') > -1);
-				client.post('/hubba/api/resources', { type : 'area', name : 'test' }, function(err){
-                    assert.ok(err.message.indexOf(' A non-root resource must define a parentId') > -1);
-					done();
-				});
-			});
+			done();
 		});
 	});
+
+    it('root resource should throw an error when adding a child without a type', function(done) {
+        client.post('/hubba/api/resources', { name : 'test', parentId: rootId }, function(err){
+            assert.ok(err.message.indexOf('Resource type undefined is invalid') > -1);
+            done();
+        });
+    });
+
+    it('root resource should throw an error when adding a child without a parentId', function(done) {
+        client.post('/hubba/api/resources', { type : 'area', name : 'test' }, function(err){
+            assert.ok(err.message.indexOf('A non-root resource must define a parentId') > -1);
+            done();
+        });
+    });
 	
 	it('root resource should add a child, which should be accessible from /hubba/api and /api, and get a 200 response', function(done){
 		client.post('/hubba/api/resources', {
@@ -107,15 +115,15 @@ describe('Area Resource', function() {
 		});
 	});
 
-    /* WTF!!!!
+
     it('The old path /api/area_resource/area_resource_child should no longer be accessible.',function(done){
 
-        client.get('/api/area_resource/area_resource_child',function(err, req, res, data){console.log(data);
+        client.get('/api/area_resource/area_resource_child',function(err, req, res, data){
             assert.ok(err, "Old route still resolved.");
             done();
         });
 
-    });*/
+    });
 	
 	it('area_resource should be renamed to "area_resource_r", the path should be updated.', function(done){
 		client.put('/hubba/api/resources/'+id+'', {

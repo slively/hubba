@@ -1,0 +1,74 @@
+<div ng-controller="childFileCtrl" class="resource-row">
+
+    <div ng-if="isFile(child)" class="form-group has-feedback" ng-class="{'has-success':(key.length && key.indexOf('.')), 'has-error': (key.length===0 || key.indexOf('.') < 1) }">
+        <a class="btn btn-link"
+           ng-class="{'orange-text':child == hubba.selectedFile.id}"
+           href="/hubba-admin/files/{{child.id}}"
+           context-menu="selectFileFromTree(child);toggleRightClickMenuButtons('fileRightClickMenu');"
+           data-target="fileRightClickMenu"
+           ng-class="{ 'highlight': highlight, 'expanded' : expanded }"
+           ng-hide="fileRenameInput === child">
+            {{key}}
+        </a>
+        <input id="renameInput_{{child.id}}"
+               type="text"
+               class="form-control"
+               ng-model="key"
+               ng-show="fileRenameInput === child"
+               ng-keyup="closeFileRenameInput($event,child,key,fileRenameInput)"
+               ng-blur="closeFileRenameInput()"/>
+    </div>
+
+    <div ng-if="isFolder(child)">
+
+        <a class="btn btn-link"
+           ng-click="child.__expanded__=!child.__expanded__"
+           context-menu="child.__expanded__=true;selectFolderFromTree(child);toggleRightClickMenuButtons('folderRightClickMenu');"
+           data-target="fileRightClickMenu"
+           ng-class="{ 'highlight': highlight, 'expanded' : expanded }"
+           ng-hide="showRenameFolderInput.path === child.path">
+            <span ng-class="{ 'fa-caret-down': child.__expanded__, 'fa-caret-right': !child.__expanded__ }" class="fa tree-toggle"></span>
+            {{key}}
+        </a>
+
+        <span class="form-group has-feedback" ng-class="{'has-success':showRenameFolderInput.valid, 'has-error': !showRenameFolderInput.valid }">
+            <input id="renameFolderInput_{{child.path}}"
+                   type="text"
+                   class="form-control"
+                   style="margin-left:10px;"
+                   ng-model="showRenameFolderInput.value"
+                   ng-init="showRenameFolderInput.value=key"
+                   ng-if="showRenameFolderInput.path === child.path"
+                   ng-keyup="closeRenameFolderInput(child,$event)"
+                   ng-blur="closeRenameFolderInput(child);" />
+        </span>
+
+        <ul ng-show="child.__expanded__" class="resource-child-list">
+
+            <li class="form-group has-feedback" ng-show="showNewFileInput.path === child.path" ng-class="{'has-success':showNewFileInput.valid, 'has-error': !showNewFileInput.valid }">
+                <input id="newFileInput_{{child.path}}"
+                       type="text"
+                       class="form-control"
+                       ng-model="showNewFileInput.value"
+                       ng-keyup="closeNewFileInput(child,$event)"
+                       ng-blur="closeNewFileInput();"
+                       placeholder="index.html"/>
+            </li>
+
+            <li class="form-group has-feedback" ng-show="showNewFolderInput.path === child.path" ng-class="{'has-success':showNewFolderInput.valid, 'has-error': !showNewFolderInput.valid }">
+                <input id="newFolderInput_{{child.path}}"
+                       type="text"
+                       class="form-control"
+                       ng-model="showNewFolderInput.value"
+                       ng-keyup="closeNewFolderInput(child,$event)"
+                       ng-blur="closeNewFolderInput();"
+                       placeholder="myfolder"/>
+            </li>
+
+            <li ng-repeat="(key,child) in child">
+                <ng-include src="'/hubba-admin/partials/fileTree.html'"></ng-include>
+            </li>
+        </ul>
+    </div>
+
+</div>

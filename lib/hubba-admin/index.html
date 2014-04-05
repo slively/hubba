@@ -3,31 +3,200 @@
 <head>
     <title>Welcome to Hubba!</title>
 
-    <link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/hubba-admin/static/hubba.css" rel="stylesheet">
-
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-    <script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/js/bootstrap.min.js"></script>
-    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
-    <script type="text/javascript" src="http://code.angularjs.org/snapshot/angular.min.js"></script>
-    <script type="text/javascript" src="http://code.angularjs.org/snapshot/angular-route.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="/hubba-admin/static/lodash.min.js"></script>
+    <script type="text/javascript" src="/hubba-admin/static/angular.min.js"></script>
     <script type="text/javascript" src="/hubba-admin/static/ace/ace.js"></script>
     <script type="text/javascript" src="/hubba-admin/static/ui-ace.min.js"></script>
     <script type="text/javascript" src="/hubba-admin/static/hubba.js"></script>
-</head>
-<body ng-controller="body">
-<div class="navbar" role="navigation">
-    <ul class="nav navbar-nav">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="/hubba-admin">Hubba</a>
-        </div>
-        <li ng-class="{active:hubba.$route.path.indexOf('/resources') > -1}"><a href="/hubba-admin/resources">Resources</a></li>
-        <li ng-class="{active:hubba.$route.path=='/hubba-admin/files/'}"><a href="/hubba-admin/files">Files</a></li>
-    </ul>
-</div>
+    <script type="text/javascript" src="/hubba/clients/rawClient.js"></script>
 
-<div class="view-container fluid-container">
+    <!-- PACE LOAD BAR PLUGIN - This creates the subtle load bar effect at the top of the page. -->
+    <link  href="/hubba-admin/static/theme/css/plugins/pace/pace.css" rel="stylesheet">
+    <script src="/hubba-admin/static/theme/js/plugins/pace/pace.js"></script>
+
+    <!-- GLOBAL STYLES - Include these on every page. -->
+    <link href="/hubba-admin/static/theme/css/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!--<link href='http://fonts.googleapis.com/css?family=Ubuntu:300,400,500,700,300italic,400italic,500italic,700italic' rel="stylesheet" type="text/css">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel="stylesheet" type="text/css">-->
+    <link href="/hubba-admin/static/theme/icons/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- PAGE LEVEL PLUGIN STYLES -->
+    <link href="/hubba-admin/static/theme/css/plugins/messenger/messenger.css" rel="stylesheet">
+    <link href="/hubba-admin/static/theme/css/plugins/messenger/messenger-theme-flat.css" rel="stylesheet">
+    <link href="/hubba-admin/static/theme/css/plugins/daterangepicker/daterangepicker-bs3.css" rel="stylesheet">
+    <link href="/hubba-admin/static/theme/css/plugins/morris/morris.css" rel="stylesheet">
+    <link href="/hubba-admin/static/theme/css/plugins/jvectormap/jquery-jvectormap-1.2.2.css" rel="stylesheet">
+    <!-- <link href="/hubba-admin/static/theme/css/plugins/datatables/datatables.css" rel="stylesheet"> -->
+
+    <!-- THEME STYLES - Include these on every page. -->
+    <link href="/hubba-admin/static/theme/css/style.css" rel="stylesheet">
+    <link href="/hubba-admin/static/theme/css/plugins.css" rel="stylesheet">
+
+    <!-- THEME DEMO STYLES - Use these styles for reference if needed. Otherwise they can be deleted. -->
+    <link href="/hubba-admin/static/theme/css/demo.css" rel="stylesheet">
+
+    <!--[if lt IE 9]>
+    <script src="/hubba-admin/static/theme/js/html5shiv.js"></script>
+    <script src="/hubba-admin/static/theme/js/respond.min.js"></script>
+    <![endif]-->
+
+    <link href="/hubba-admin/static/hubba.css" rel="stylesheet">
+
+</head>
+<body ng-controller="body" id="wrapper">
+
+<nav class="navbar-top" role="navigation">
+
+    <!-- begin BRAND HEADING -->
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle pull-right" data-toggle="collapse" data-target=".sidebar-collapse">
+            <i class="fa fa-bars"></i> Menu
+        </button>
+        <div class="navbar-brand">
+            <a href="/hubba-admin">
+                <img src="/hubba-admin/static/logo.png" data-1x="/hubba-admin/static/logo.png" data-2x="/hubba-admin/static/theme/img/logo.png" class="hisrc img-responsive" alt="" width="172" height="20">
+            </a>
+        </div>
+    </div>
+    <!-- end BRAND HEADING -->
+
+    <div class="nav-top">
+        <ul class="nav navbar-left">
+            <li class="tooltip-sidebar-toggle">
+                <a href="#" id="sidebar-toggle" data-toggle="tooltip" data-placement="right" title="" data-original-title="Sidebar Toggle">
+                    <i class="fa fa-bars"></i>
+                </a>
+            </li>
+        </ul>
+
+        <ul class="nav navbar-right">
+            <li class="dropdown">
+                    <li>
+                        <a href="#logout" data-popup-ordinal="0" id="open_45730987">
+                            <i class="fa fa-sign-out"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<nav class="navbar-side" role="navigation">
+    <div class="navbar-collapse sidebar-collapse collapse">
+        <ul id="side" class="nav navbar-nav side-nav">
+            <li>
+                <a ng-class="{active:hubba.$route.path === '/hubba-admin/'}" href="/hubba-admin">
+                    <i class="fa fa-dashboard"></i> Dashboard
+                </a>
+            </li>
+
+            <!--<li>
+                <a ng-class="{active:hubba.$route.path.indexOf('/resources') > -1}"href="/hubba-admin/resources">
+                    <i class="fa fa-cog"></i> Resources
+                </a>
+            </li>-->
+
+            <li>
+                <a ng-class="{active:hubba.$route.path.indexOf('/services') > -1}" href="/hubba-admin/services">
+                    <i class="fa fa-cog"></i> Services
+                </a>
+            </li>
+            <li>
+                <a ng-class="{active:hubba.$route.path.indexOf('/sockets') > -1}" href="/hubba-admin/sockets">
+                    <i class="fa fa-circle-o"></i> Sockets
+                </a>
+            </li>
+            <li>
+                <a ng-class="{active:hubba.$route.path.indexOf('/files') > -1}" href="/hubba-admin/files">
+                    <i class="fa fa-files-o"></i> Files
+                </a>
+            </li>
+            <li>
+                <a ng-class="{active:hubba.$route.path.indexOf('/logs') > -1}" href="/hubba-admin/logs">
+                    <i class="fa fa-list"></i> Logs
+                </a>
+            </li>
+            <li>
+                <a ng-class="{active:hubba.$route.path.indexOf('/help') > -1}" href="/hubba-admin/help">
+                    <i class="fa fa-question"></i> Help
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div id="page-wrapper" class="view-container fluid-container">
     <div ng-view></div>
 </div>
+
+
+
+<!-- GLOBAL SCRIPTS -->
+<script src="/hubba-admin/static/jquery.min.js" type="text/javascript"></script>
+<script src="/hubba-admin/static/theme/js/plugins/bootstrap/bootstrap.min.js" type="text/javascript"></script>
+<script src="/hubba-admin/static/theme/js/plugins/slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
+<script src="/hubba-admin/static/theme/js/plugins/popupoverlay/jquery.popupoverlay.js" type="text/javascript"></script>
+<script src="/hubba-admin/static/theme/js/plugins/popupoverlay/defaults.js" type="text/javascript"></script>
+<!-- Logout Notification Box -->
+<div id="logout">
+    <div class="logout-message">
+        <img class="/hubba-admin/static/theme/img-circle img-logout" src="/hubba-admin/static/theme/img/profile-pic.jpg" alt="">
+        <h3>
+            <i class="fa fa-sign-out text-green"></i> Ready to go?
+        </h3>
+        <p>Select "Logout" below if you are ready<br> to end your current session.</p>
+        <ul class="list-inline">
+            <li>
+                <a href="login.html" class="btn btn-green">
+                    <strong>Logout</strong>
+                </a>
+            </li>
+            <li>
+                <button class="logout_close btn btn-green">Cancel</button>
+            </li>
+        </ul>
+    </div>
+</div>
+<!-- /#logout -->
+<!-- Logout Notification jQuery -->
+<script src="/hubba-admin/static/theme/js/plugins/popupoverlay/logout.js"></script>
+<!-- HISRC Retina Images -->
+<script src="/hubba-admin/static/theme/js/plugins/hisrc/hisrc.js"></script>
+
+<!-- PAGE LEVEL PLUGIN SCRIPTS -->
+<!-- HubSpot Messenger -->
+<script src="/hubba-admin/static/theme/js/plugins/messenger/messenger.min.js"></script>
+<script src="/hubba-admin/static/theme/js/plugins/messenger/messenger-theme-flat.js"></script>
+<!-- Date Range Picker -->
+<script src="/hubba-admin/static/theme/js/plugins/daterangepicker/moment.js"></script>
+<script src="/hubba-admin/static/theme/js/plugins/daterangepicker/daterangepicker.js"></script>
+<!-- Morris Charts -->
+<script src="/hubba-admin/static/theme/js/plugins/morris/raphael-2.1.0.min.js"></script>
+<script src="/hubba-admin/static/theme/js/plugins/morris/morris.js"></script>
+<!-- Flot Charts -->
+<script src="/hubba-admin/static/theme/js/plugins/flot/jquery.flot.js"></script>
+<script src="/hubba-admin/static/theme/js/plugins/flot/jquery.flot.resize.js"></script>
+<!-- Sparkline Charts -->
+<script src="/hubba-admin/static/theme/js/plugins/sparkline/jquery.sparkline.min.js"></script>
+<!-- Moment.js -->
+<script src="/hubba-admin/static/theme/js/plugins/moment/moment.min.js"></script>
+<!-- jQuery Vector Map -->
+<script src="/hubba-admin/static/theme/js/plugins/jvectormap/jquery-jvectormap-1.2.2.min.js"></script>
+<script src="/hubba-admin/static/theme/js/plugins/jvectormap/maps/jquery-jvectormap-world-mill-en.js"></script>
+<script src="/hubba-admin/static/theme/js/demo/map-demo-data.js"></script>
+<!-- Easy Pie Chart -->
+<script src="/hubba-admin/static/theme/js/plugins/easypiechart/jquery.easypiechart.min.js"></script>
+<!-- DataTables
+<script src="/hubba-admin/static/theme/js/plugins/datatables/jquery.dataTables.js"></script>
+<script src="/hubba-admin/static/theme/js/plugins/datatables/datatables-bs3.js"></script>-->
+
+<!-- THEME SCRIPTS -->
+<script src="/hubba-admin/static/theme/js/flex.js"></script>
+<script src="/hubba-admin/static/theme/js/demo/dashboard-demo.js"></script>
+
+
 </body>
 </html>

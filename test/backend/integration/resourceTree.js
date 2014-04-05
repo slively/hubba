@@ -26,7 +26,7 @@ describe('ResourceTree (file) 1st creation.',function(){
             types = result;
 
             types.forEach(function(type){
-                assert.ok(files.indexOf(type.name+'.js') > -1);
+                assert.ok(files.indexOf(type.name) > -1);
             });
 
             done();
@@ -59,6 +59,7 @@ describe('ResourceTree (file) 1st creation.',function(){
            assert.ifError(err);
            assert.equal('area',result.type);
            assert.equal('area',result.name);
+           assert.equal(1,result.version);
            assert.ok(result.id);
            area = result;
            done();
@@ -73,9 +74,10 @@ describe('ResourceTree (file) 1st creation.',function(){
     });
 
     it('should change the type of "area" to redirect',function(done){
-        tree.update(area.id,{type:'redirect'},function(err,result){
+        tree.update(area.id,{type:'redirect',configuration:{url:'http://dummy.com'}},function(err,result){
             assert.ifError(err);
             assert.equal(result.type,'redirect');
+            assert.equal(2,result.version);
             done();
         })
     });

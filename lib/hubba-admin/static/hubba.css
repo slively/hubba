@@ -1,14 +1,57 @@
-.tab-pane {
-	border: 1px solid #ddd;
-	border-top: none;
-}
-
 #resources ul { list-style:none; margin:0px; padding:6px 0 6px 7px;}
 #resources ul li { margin-bottom: 5px; }
-#resourcePane .tab-pane { padding: 10px; }
+#resources .resource-child-list li { margin-left: 10px; }
 #resources .glyphicon { cursor: pointer; }
 #resources .glyphicon.no-children { width: 14px; }
 #resource-link { padding: 8px; border-bottom: 1px solid #ddd; text-align: center; width: 100%; margin: -8px 0 20px 0; }
 .view-container.container { padding-bottom: 20px; }
 ul.expected-object-tree { list-style:none; margin: 0px; }
-.ace_editor { height: 500px; }
+.ace_editor { height: 1000px; }
+
+#resources .resource-row > .btn-group:hover a .fa,
+#resources .resource-row .btn-group.open > a .fa { visibility: visible; }
+#resources .resource-row .btn-group { width: 90%; margin-top: -5px; }
+#resources .tree-toggle { font-size: 20px; cursor: pointer; }
+#resources .btn-group a .fa { visibility: hidden; margin: 5px 0 0 -10px; font-size: 14px; }
+
+.btn.btn-link.btn-sm.dropdown-toggle.btn-primary { background: transparent; border: none; }
+#resourcePane .portlet { position: relative; }
+#resourcePane .portlet-heading { padding: 10px; }
+#resourcePane .portlet-heading a { font-size: 15px; text-decoration: underline; }
+#resourcePane .portlet-heading a:hover { color: #FDEBD0; }
+#resourcePane .portlet-title h4 { margin: 0px; }
+#resourcePane .portlet-title { margin: 0 auto; text-align: center; position: relative; top: 0px; float: none; height: 20px; }
+#resourcePane .saving-spinner { position: absolute; top: -45px; font-size: 20px; color: white; }
+#resourcePane.servicesPane .saving-spinner { top: -95px; }
+#resourcePane .help-pane .help-title-container { border-bottom: 1px solid #34495e; margin: -20px 0 20px 0; }
+#resourcePane .help-pane .help-title { display: block; text-align: center; }
+.resource-row .fa, .btn.btn-link { color: #34495E; }
+.nav-pills.nav-pills-square>li>a { border-radius: 0; }
+#logTable { background: #fff; }
+#logTable td, #logTable th { cursor: pointer; }
+#logTable thead input { border-radius: 5px; }
+#logTable td, #logTable tbody, #logTable tr { border: none; }
+
+.alert-info {
+    background-color: #f39c12;
+    border-color: #f39c12;
+    color: white;
+}
+.orange-text { color: #f39c12 !important; }
+a.list-group-item.active, a.list-group-item.active:hover, a.list-group-item.active:focus, .nav-pills>li.active>a, .nav-pills>li.active>a:hover, .nav-pills>li.active>a:focus, .pagination>.active>a, .pagination>.active>span, .pagination>.active>a:hover, .pagination>.active>span:hover, .pagination>.active>a:focus, .pagination>.active>span:focus {
+    border-color: white;
+    background-color: white;
+    color: #f39c12;
+}
+a.list-group-item:hover, a.list-group-item:focus, .nav-tabs > li > a:hover, .nav-tabs > li > a:focus, .nav-pills > li > a:hover, .nav-pills > li > a:focus, .nav-tabs .open > a, .nav-tabs .open > a:hover, .nav-tabs .open > a:focus, .nav-pills .open > a, .nav-pills .open > a:hover, .nav-pills .open > a:focus, .nav-tabs ul.dropdown-menu > li > a:hover, .nav-tabs ul.dropdown-menu > li > a:focus, .nav-pills ul.dropdown-menu > li > a:hover, .nav-pills ul.dropdown-menu > li > a:focus {
+    background-color: #FEF5E7;
+}
+
+ul.dropdown-menu li { cursor: pointer; }
+
+@media (min-width: 768px) {
+    #page-wrapper { margin: 50px 0 0 170px; }
+    .navbar-side .side-nav,
+    .navbar-side .side-nav > li > a,
+    .navbar-top .navbar-header{ width: 170px; }
+}

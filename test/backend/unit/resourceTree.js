@@ -28,7 +28,7 @@ var assert = require('assert-plus'),
         this.update = function(){self.emit('update:path');};
         this.destroy = function(){return this;};
         this.toJSON = function(){
-            return {id:this.id,isRoot:this.isRoot,type:this.type, children: { child: {id:2,parentId:1 }}};
+            return {id:this.id,isRoot:this.isRoot,type:this.type, children: { child: {id:2,parentId:1 }},path:this.path};
         }
     },
     mockResourceStore = function(){
@@ -153,6 +153,7 @@ describe('ResourceTree', function(){
     it ('should allow the deleting of resources by id and fire the "remove:path event".', function(done){
         tree.on('remove:path',function(obj){
            assert.equal(resource.id,obj.id);
+           assert.equal(resource.path,obj.path);
         });
         tree.remove(resource.id,function(err){
             assert.ifError(err);

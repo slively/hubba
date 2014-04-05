@@ -1,3 +1,130 @@
-<div class="col-9">
-	files! woo!
+<div class="row" style="padding: 30px 0;">
+    <div id="resources" class="col-lg-3">
+        <div class="portlet portlet-default">
+            <div class="panel-collapse in" style="height: auto;">
+                <div class="portlet-body" ng-controller="childFileCtrl">
+                    <a class="btn btn-link"
+                       ng-init="rootFile.__expanded__=true;rootFile.path='/';"
+                       ng-click="rootFile.__expanded__=!rootFile.__expanded__"
+                       context-menu="selectFolderFromTree(rootFile);toggleRightClickMenuButtons('rootRightClickMenu')"
+                       data-target="fileRightClickMenu"
+                       ng-class="{ 'highlight': highlight, 'expanded' : expanded }">
+                        <span ng-class="{ 'fa-caret-down': rootFile.__expanded__, 'fa-caret-right': !rootFile.__expanded__ }" class="fa tree-toggle"></span>
+                        Files
+                    </a>
+
+                    <span class="form-group has-feedback" ng-show="showNewFileInput.path === rootFile.path" ng-class="{'has-success':showNewFileInput.valid, 'has-error': !showNewFileInput.valid }">
+                        <input id="newFileInput_{{rootFile.path}}"
+                               type="text"
+                               class="form-control"
+                               ng-model="showNewFileInput.value"
+                               ng-keyup="closeNewFileInput(rootFile,$event)"
+                               ng-blur="closeNewFileInput();"
+                               placeholder="index.html"/>
+                    </span>
+
+                    <span class="form-group has-feedback" ng-show="showNewFolderInput.path === rootFile.path" ng-class="{'has-success':showNewFolderInput.valid, 'has-error': !showNewFolderInput.valid }">
+                        <input id="newFolderInput_{{rootFile.path}}"
+                               type="text"
+                               class="form-control"
+                               ng-model="showNewFolderInput.value"
+                               ng-keyup="closeNewFolderInput(rootFile,$event)"
+                               ng-blur="closeNewFolderInput();"
+                               placeholder="myfolder"/>
+                    </span>
+
+                    <ul ng-show="rootFile.__expanded__">
+                        <li ng-repeat="(key,child) in hubba.files.cache">
+                            <ng-include src="'/hubba-admin/partials/fileTree.html'"></ng-include>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="resourcePane" class="col-lg-9">
+        <div class="alert alert-danger" ng-show="hubba.errors.length">
+            <button type="button" class="close" ng-click="hubba.errors = [];">×</button>
+            <p ng-repeat="err in hubba.errors">
+                {{err.message}}
+            </p>
+        </div>
+
+        <div class="alert alert-info" ng-hide="hubba.selectedFile || loadingFile">
+            <center>
+                Select a file to get started.
+            </center>
+        </div>
+
+        <div class="portlet portlet-default" ng-show="hubba.selectedFile.id || loadingFile">
+
+            <div class="portlet-heading">
+                <a ng-click="deleteFile(hubba.selectedFile);" style="position: absolute; color: #e74c3c; top: 0; right: 0; cursor: pointer; font-size: 20px; z-index: 999;" class="btn link">
+                    <i class="fa fa-times"></i>
+                </a>
+                <div class="portlet-title">
+
+                    <a title="{{hubba.selectedFile.path.replace('/index.html','/')}}" href="{{hubba.selectedFile.path.replace('/index.html','/')}}" target="_blank">
+                        {{hubba.selectedFile.path}}
+                    </a>
+                </div>
+
+
+                <div class="clearfix"></div>
+            </div>
+            <div class="portlet-body">
+                <div class="tab-pane">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <span><i class="fa fa-spin fa-spinner saving-spinner" ng-show="fileSaving"></i></span>
+                            <div ng-if="hubba.selectedFile.id" ng-model="hubba.selectedFile.contents" ng-change="fileAutoSave(hubba.selectedFile);" ui-ace="fileAceOptions"></div>
+                            <div ng-show="loadingFile" style="width:100%;height:500px;">
+                                <span><i class="fa fa-spin fa-spinner saving-spinner"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.portlet-body -->
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+<div class="dropdown rightclickmenu" id="fileRightClickMenu">
+    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+
+        <!-- Root folder right click -->
+        <li role="presentation" ng-show="rightClickMenus.rootRightClickMenu">
+            <a class="pointer" role="menuitem" tabindex="-1" ng-click="newFileFromTree();">New File</a>
+        </li>
+        <li role="presentation" ng-show="rightClickMenus.rootRightClickMenu">
+            <a class="pointer" role="menuitem" tabindex="-1" ng-click="newFolderFromTree();">New Folder</a>
+        </li>
+
+        <!-- File right click -->
+        <li role="presentation" ng-show="rightClickMenus.fileRightClickMenu">
+            <a class="pointer" role="menuitem" tabindex="-1" ng-click="showFileRenameInputFromTree();">Rename File</a>
+        </li>
+        <li role="presentation" ng-show="rightClickMenus.fileRightClickMenu">
+            <a class="pointer" role="menuitem" tabindex="-1" ng-click="removeFileFromTree();">Delete File</a>
+        </li>
+
+        <!-- Sub-Folder right click -->
+        <li role="presentation" ng-show="rightClickMenus.folderRightClickMenu">
+            <a class="pointer" role="menuitem" tabindex="-1" ng-click="newFileFromTree();">New File</a>
+        </li>
+        <li role="presentation" ng-show="rightClickMenus.folderRightClickMenu">
+            <a class="pointer" role="menuitem" tabindex="-1" ng-click="newFolderFromTree();">New Folder</a>
+        </li>
+        <li role="presentation" ng-show="rightClickMenus.folderRightClickMenu">
+            <a class="pointer" role="menuitem" tabindex="-1" ng-click="renameFolderFromTree();">Rename Folder</a>
+        </li>
+        <li role="presentation" ng-show="rightClickMenus.folderRightClickMenu">
+            <a class="pointer" role="menuitem" tabindex="-1" ng-click="removeFolderFromTree();">Delete Folder</a>
+        </li>
+    </ul>
 </div>

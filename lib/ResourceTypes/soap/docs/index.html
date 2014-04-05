@@ -1,0 +1,27 @@
+<p>SOAP resources enable a REST web service call to a SOAP endpoint.</p>
+<p>It uses <strong><a href="https://github.com/milewise/node-soap">node-soap</a></strong> and the configuration, request, and response will reflect that library.</p>
+<p>A POST request would make the soap call and is in the format: {{resource.path.replace('*','')}}/:service/:port/:function</p>
+
+<h3>GET (describe WSDL as JSON)</h3>
+<strong>Request</strong>
+<strong>Response</strong>
+<pre>
+{
+  MyService: {
+    MyPort: {
+      MyFunction: {
+        input: {
+          name: 'string'
+        }
+      }
+    }
+  }
+}</pre>
+
+<h3>POST (make soap request)</h3>
+<strong>Request</strong>
+<pre>
+URL: {{resource.path.replace('*','')}}/MyService/MyPort/MyFunction
+BODY: { "name": "value" }</pre>
+<strong>Response</strong>
+<pre>JSON representation of SOAP response</pre>

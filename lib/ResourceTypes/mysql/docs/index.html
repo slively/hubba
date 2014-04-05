@@ -1,0 +1,42 @@
+<p>Mysql resources enable a web service call to run queries against a mysql database.</p>
+<p>It uses <strong><a href="https://github.com/felixge/node-mysql">node-mysql</a></strong> and the configuration, request, and response will reflect that library.</p>
+
+<h3>POST (sql query)</h3>
+<strong>Request</strong>
+<pre>
+{
+    "sql": "select * from table;"
+}
+-- or --
+{
+    "sql": "select * from table where id = ?;",
+    "values": [1]
+}
+-- or --
+{
+    "sql": "insert into table SET ?",
+    "values": { "col": "val" }
+}
+-- or --
+{
+    "sql": "update table set col = :col where id = :id ;",
+    "values": {
+        "id": 1,
+        "col": "newval"
+    }
+}
+-- or --
+{
+    "sql": "delete from table where id = :id;",
+    "values": {
+        "id": 1
+    }
+}
+</pre>
+<strong>Response</strong>
+<pre>
+[
+    { "id": 1, "col": "val" },
+    ...
+]
+</pre>

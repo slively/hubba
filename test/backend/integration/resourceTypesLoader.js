@@ -11,14 +11,16 @@ describe('ResourceTypesLoader',function(){
 
     it('should read in all the standard resource type configurations and create the factories.',function(done){
         factories = new ResourceTypesLoader();
-
         for (var key in factories){
-            assert.ok(files.indexOf(key+'.js') > -1);
+            assert.ok(files.indexOf(key) > -1);
         }
 
         done();
     });
-
+/*
+    This test is no longer really valid because valid configuration
+    is checked up resource creation.
+    
     it('should test all of the factories: ',function(done){
         for ( var name in factories ){
 
@@ -40,5 +42,5 @@ describe('ResourceTypesLoader',function(){
         };
         done();
     });
-
+*/
 });

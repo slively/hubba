@@ -1,169 +1,202 @@
+<div class="row" style="padding: 30px 0;">
 <div id="resources" class="col-lg-3">
-	<ul>
-		<li>
-			<div class="child" ng-controller="childResourceCtrl">
-				<div class="btn-group">
-					<a class="btn btn-default btn-sm" ng-class="{'btn-primary':resourcesRoot.id == hubba.selectedResource.id}" disabled>/{{resourcesRoot.name}}</a>
-					<button type="button" class="btn btn-default btn-sm dropdown-toggle" ng-class="{'btn-primary':resourcesRoot.id == hubba.selectedResource.id}" data-toggle="dropdown">
-				  		<span class="caret"></span>
-					</button>
-				  	<ul class="dropdown-menu" role="menu">
-				    	<li><a href="#" ng-click="addChild(resourcesRoot)">Add child</a></li>
-				  	</ul>
-				</div>
-			</div>
-			<ul>
-				<li ng-repeat="(key,child) in resourcesRoot.children">
-					<ng-include src="'/hubba-admin/partials/resourceTree.html'"></ng-include>
-				</li>
-			</ul>
-		</li>
-	</ul>
+    <div class="portlet portlet-default">
+        <div class="panel-collapse in" style="height: auto;">
+            <div class="portlet-body">
+                <ul>
+                    <li>
+                        <div class="child" ng-controller="childResourceCtrl">
+                                <a class="btn link btn-sm" ng-class="{'btn-primary':resourcesRoot.id == hubba.selectedResource.id}" disabled>/{{resourcesRoot.name}}</a>
+                                <a href="" ng-click="addChild(resourcesRoot)"><i class="fa fa-plus"></i></a>
+                                <!--<a class="btn btn-link btn-sm dropdown-toggle" ng-class="{'btn-primary':child.id == hubba.selectedResource.id}" data-toggle="dropdown">
+                                    <span class="fa fa-caret-square-o-down"></span>
+                                </a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="#" ng-click="addChild(resourcesRoot)">Add child</a></li>
+                                </ul>-->
+                            </div>
+                        <ul>
+                            <li ng-repeat="(key,child) in resourcesRoot.children">
+                                <ng-include src="'/hubba-admin/partials/resourceTree.html'"></ng-include>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>
 	
-<div id="resourcePane" class="col-lg-9" ng-if="hubba.selectedResource.id">
-	
-	<ul class="nav nav-tabs" id="myTab">
-	  	<li ng-class="{active:hubba.$route.params.page == 'config'}"><a href="{{hubba.selectedResource.id}}?page=config">Config</a></li>
-        <li ng-class="{active:hubba.$route.params.page == 'security'}"><a href="{{hubba.selectedResource.id}}?page=security">Security</a></li>
-        <li ng-class="{active:hubba.$route.params.page == 'docs'}"><a href="{{hubba.selectedResource.id}}?page=docs">Docs</a></li>
-
-		<li ng-if="hubba.selectedResource.type === 'controller'" ng-class="{active:hubba.$route.params.page == verb}" ng-repeat="verb in ['GET','POST','PUT','PATCH','DELETE']">
-			<a href="{{hubba.selectedResource.id}}?page={{verb}}">{{verb}}</a>
-		</li>
-	</ul>
-
-	<div ng-show="hubba.$route.params.page == 'config'" class="tab-pane">
-		
-		<div ng-include="'/hubba-admin/partials/resourceLink.html'"></div>
-		
-		<form class="form" ng-submit="saveResource(hubba.selectedResource)" ng-if="hubba.$route.params.page == 'config'">
-
-			<div class="form-group">
-				<label for="resourceName">Name</label>
-			    <input type="text" ng-model="hubba.selectedResource.name" class="form-control" id="resourceName" placeholder="Enter resource name" ng-change="determineResourceUrl(hubba.selectedResource);" required>
-			</div>
-
-			<div class="form-group">
-				<label for="resourceType">Type</label>
-			    <select ng-model="hubba.selectedResource.type" class="form-control" id="resourceType" ng-options="key as value.label for (key,value) in hubba.resourceTypes" required ng-change="typeChanged()"></select>
-			</div>
-
-
-			<div ng-if="hubba.selectedResource.type !== 'controller'" ng-repeat="(key,val) in hubba.resourceTypes[hubba.selectedResource.type].configuration" class="form-group">
-
-				<label ng-if="val.inputType == 'text' || val.inputType == 'number' || val.inputType == 'select' || val.inputType == 'password'">{{key}}</label>
-				<label ng-if="val.inputType == 'checkbox' || val.inputType == 'radio' && val.header">{{val.header}}</label>
-				
-				<input type="text" class="form-control" ng-model="hubba.selectedResource.configuration[key]" placeholder="{{val.placeholder}}" ng-if="val.inputType == 'text'" ng-required="val.required"/>
-				
-				<input type="password" class="form-control" ng-model="hubba.selectedResource.configuration[key]" placeholder="{{val.placeholder}}" ng-if="val.inputType == 'password'" ng-required="val.required"/>
-				
-				<input type="number" class="form-control" ng-model="hubba.selectedResource.configuration[key]" placeholder="{{val.placeholder}}" ng-if="val.inputType == 'number'" ng-required="val.required"/>
-				
-				<select  class="form-control" ng-if="val.inputType == 'select'" ng-multiple="val.multiple" ng-required="val.required" ng-model="hubba.selectedResource.configuration[key]">
-					<option ng-repeat="o in val.options">{{o}}</option>
-				</select>
-				
-				<div class="checkbox" ng-if="val.inputType=='checkbox' && !val.options">
-					<label>
-					    <input type="checkbox" ng-model="hubba.selectedResource.configuration[key]">
-					    {{key}}
-					</label>
-				</div>
-				
-				<div ng-if="val.inputType=='radio'" >
-					<div class="radio" ng-repeat="o in val.options">
-					  <label>
-					    <input type="radio" ng-model="hubba.selectedResource.configuration[key]" value="{{o}}">
-					    {{o}}
-					  </label>
-					</div>
-				</div>
-				
-			</div>
-			<button type="submit" class="btn btn-default">Save</button>
-		</form>
-
-        <!--
-		<div ng-if="hubba.$route.params.page && hubba.$route.params.page != 'config'">
-			
-			<div class="row">
-				<div id="resource-tests" class="col-lg-4">
-						<select ng-model="selectedTest" ng-options="test as test.name for test in tests | filter:{verb:hubba.$route.params.page}:false" ng-change="determineResourceUrl(hubba.selectedResource,selectedTest);" class="form-control">
-						<option value="">Select a Test</option>
-					</select>
-					
-					<div id="selected-test" ng-show="selectedTest">
-						
-						<h4>URL Parameters:</h4>
-						<input type="text" class="form-control" ng-model="selectedTest.urlParam" ng-change="determineResourceUrl(hubba.selectedResource,selectedTest);"/>
-						
-						<br/>
-						<h4>Query String Parameters:</h4>
-						<table>
-							<tr><th>Name</th><th>Value</th></tr>
-							<tr ng-repeat="param in selectedTest.queryParams">
-								<td><input class="form-control" type="text" ng-model="param.name" ng-change="determineResourceUrl(hubba.selectedResource,selectedTest);"/></td>
-								<td><input class="form-control" type="text" ng-model="param.value" ng-change="determineResourceUrl(hubba.selectedResource,selectedTest);"/></td>
-							</tr>
-						</table>
-						
-						<br/>
-						<div ng-if="selectedTest.verb == 'POST' || selectedTest.verb == 'PUT' || selectedTest.verb == 'PATCH'">
-							<h4>Body JSON:</h4>
-							<textarea class="form-control" style="width:100%;height:400px;">{{ selectedTest.body | json }}</textarea>
-						</div>
-						
-						<br/>
-						<h4>Headers:</h4>
-						<table>
-							<tr><th>Name</th><th>Value</th></tr>
-							<tr ng-repeat="header in selectedTest.headers">
-								<td><input class="form-control" type="text" ng-model="header.name"  ng-change="determineResourceUrl(hubba.selectedResource,selectedTest);"/></td>
-								<td><input class="form-control" type="text" ng-model="header.value" ng-change="determineResourceUrl(hubba.selectedResource,selectedTest);"/></td>
-							</tr>
-						</table>
-					</div>
-					
-				</div>
-				
-				<div id="resource-code" class="col-lg-4">
-					<textarea class="form-control" style="width:100%;height:500px;">code...</textarea>
-				</div>
-				<div id="resource-output" class="col-lg-4">
-					{
-					<ul ng-if="selectedTest.expectedOutput" class="expected-object-tree">
-						<li ng-repeat="(key,child) in selectedTest.expectedOutput">
-							<ng-include src="'/hubba-admin/partials/expectedOutputTree.html'"></ng-include>
-						</li>
-					</ul>
-					}
-				</div>
-			</div>
-		</div>-->
-		
-	</div>
-
-    <div ng-show="hubba.$route.params.page == 'security'" class="tab-pane">
-        security
+<div id="resourcePane" class="col-lg-9">
+    <div class="alert alert-danger" ng-show="hubba.errors.length">
+        <button type="button" class="close" ng-click="hubba.errors = [];">×</button>
+        <p ng-repeat="err in hubba.errors">
+            {{err.message}}
+        </p>
     </div>
-    <div ng-show="hubba.$route.params.page == 'docs'" class="tab-pane">
-        docs
+
+    <div class="alert alert-info" ng-hide="hubba.$route.params.resourcesId">
+        <center>
+            Select a resource to get started.
+        </center>
     </div>
-    <div ng-if="hubba.selectedResource.type === 'controller'" ng-show="hubba.$route.params.page == 'GET'" class="tab-pane">
-        <div h-controller-code="updateControllerCode" h-verb="get"></div>
+
+    <div class="portlet portlet-default" ng-if="hubba.selectedResource.id && hubba.selectedResource.id.toString() === hubba.$route.params.resourcesId">
+        <div class="portlet-heading">
+            <div class="portlet-title">
+                <a title="{{hubba.selectedResource.path.replace('*','')}}" href="{{hubba.selectedResource.path.replace('*','')}}" target="_blank">
+                    {{hubba.selectedResource.path.replace('*','')}}
+                </a>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <div class="portlet-body">
+            <ul id="myPills" class="nav nav-pills nav-pills-square">
+                <li ng-class="{active:hubba.$route.params.page == 'config'}"><a href="{{hubba.selectedResource.id}}?page=config">Config</a></li>
+                <li ng-class="{active:hubba.$route.params.page == 'docs'}"><a href="{{hubba.selectedResource.id}}?page=docs">Docs</a></li>
+                <li ng-class="{active:hubba.$route.params.page == 'security'}"><a href="{{hubba.selectedResource.id}}?page=security">Security</a></li>
+
+                <li ng-if="hubba.selectedResource.type === 'controller'" ng-class="{active:hubba.$route.params.page == verb}" ng-repeat="verb in ['GET','POST','PUT','PATCH','DELETE']">
+                    <a href="{{hubba.selectedResource.id}}?page={{verb}}">{{verb}}</a>
+                </li>
+            </ul>
+            <div ng-show="hubba.$route.params.page == 'config'" class="tab-pane">
+
+                <form class="form" ng-submit="saveResource(hubba.selectedResource)" ng-if="hubba.$route.params.page == 'config'">
+
+                    <div class="form-group">
+                        <label for="resourceName">Name</label>
+                        <input type="text" ng-model="hubba.selectedResource.name" class="form-control" id="resourceName" placeholder="Enter resource name" ng-change="determineResourceUrl(hubba.selectedResource);" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="resourceType">Type</label>
+                        <select ng-model="hubba.selectedResource.type" class="form-control" id="resourceType" ng-options="key as value.label for (key,value) in hubba.resourceTypes" required ng-change="typeChanged()"></select>
+                    </div>
+
+
+                    <div ng-if="hubba.selectedResource.type !== 'controller'" ng-repeat="key in hubba.resourceTypes[hubba.selectedResource.type].configurationKeys" class="form-group">
+                        <span style="display:none;" ng-init="val = hubba.resourceTypes[hubba.selectedResource.type].configuration[key]"></span>
+                        <label ng-if="val.inputType == 'text' || val.inputType == 'number' || val.inputType == 'select' || val.inputType == 'password' || val.inputType == 'textarea'">{{key}}</label>
+                        <label ng-if="val.inputType == 'radio' && val.header">{{val.header}}</label>
+
+                        <input type="text" class="form-control" ng-model="hubba.selectedResource.configuration[key]" placeholder="{{val.placeholder}}" ng-if="val.inputType == 'text'" ng-required="val.required"/>
+
+                        <input type="password" class="form-control" ng-model="hubba.selectedResource.configuration[key]" placeholder="{{val.placeholder}}" ng-if="val.inputType == 'password'" ng-required="val.required"/>
+
+                        <input type="number" class="form-control" ng-model="hubba.selectedResource.configuration[key]" placeholder="{{val.placeholder}}" ng-if="val.inputType == 'number'" ng-required="val.required"/>
+
+                        <select  class="form-control" ng-if="val.inputType == 'select'" ng-multiple="val.multiple" ng-required="val.required" ng-model="hubba.selectedResource.configuration[key]">
+                            <option ng-repeat="o in val.options">{{o}}</option>
+                        </select>
+
+                        <div class="checkbox" ng-if="val.inputType=='checkbox' && !val.options">
+                            <label>
+                                <input type="checkbox" ng-model="hubba.selectedResource.configuration[key]"> {{val.header}}
+                            </label>
+                        </div>
+
+                        <div ng-if="val.inputType=='radio'" >
+                            <div class="radio" ng-repeat="o in val.options">
+                                <label>
+                                    <input type="radio" ng-model="hubba.selectedResource.configuration[key]" value="{{o}}">
+                                    {{o}}
+                                </label>
+                            </div>
+                        </div>
+
+                        <textarea class="form-control" ng-if="val.inputType == 'textarea'" placeholder="{{val.placeholder}}" rows="5" ng-model="hubba.selectedResource.configuration[key]"></textarea>
+
+                    </div>
+                    <button type="submit" class="btn btn-default btn-square">Save</button>
+                </form>
+
+                <!--
+                <div ng-if="hubba.$route.params.page && hubba.$route.params.page != 'config'">
+
+                    <div class="row">
+                        <div id="resource-tests" class="col-lg-4">
+                                <select ng-model="selectedTest" ng-options="test as test.name for test in tests | filter:{verb:hubba.$route.params.page}:false" ng-change="determineResourceUrl(hubba.selectedResource,selectedTest);" class="form-control">
+                                <option value="">Select a Test</option>
+                            </select>
+
+                            <div id="selected-test" ng-show="selectedTest">
+
+                                <h4>URL Parameters:</h4>
+                                <input type="text" class="form-control" ng-model="selectedTest.urlParam" ng-change="determineResourceUrl(hubba.selectedResource,selectedTest);"/>
+
+                                <br/>
+                                <h4>Query String Parameters:</h4>
+                                <table>
+                                    <tr><th>Name</th><th>Value</th></tr>
+                                    <tr ng-repeat="param in selectedTest.queryParams">
+                                        <td><input class="form-control" type="text" ng-model="param.name" ng-change="determineResourceUrl(hubba.selectedResource,selectedTest);"/></td>
+                                        <td><input class="form-control" type="text" ng-model="param.value" ng-change="determineResourceUrl(hubba.selectedResource,selectedTest);"/></td>
+                                    </tr>
+                                </table>
+
+                                <br/>
+                                <div ng-if="selectedTest.verb == 'POST' || selectedTest.verb == 'PUT' || selectedTest.verb == 'PATCH'">
+                                    <h4>Body JSON:</h4>
+                                    <textarea class="form-control" style="width:100%;height:400px;">{{ selectedTest.body | json }}</textarea>
+                                </div>
+
+                                <br/>
+                                <h4>Headers:</h4>
+                                <table>
+                                    <tr><th>Name</th><th>Value</th></tr>
+                                    <tr ng-repeat="header in selectedTest.headers">
+                                        <td><input class="form-control" type="text" ng-model="header.name"  ng-change="determineResourceUrl(hubba.selectedResource,selectedTest);"/></td>
+                                        <td><input class="form-control" type="text" ng-model="header.value" ng-change="determineResourceUrl(hubba.selectedResource,selectedTest);"/></td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                        </div>
+
+                        <div id="resource-code" class="col-lg-4">
+                            <textarea class="form-control" style="width:100%;height:500px;">code...</textarea>
+                        </div>
+                        <div id="resource-output" class="col-lg-4">
+                            {
+                            <ul ng-if="selectedTest.expectedOutput" class="expected-object-tree">
+                                <li ng-repeat="(key,child) in selectedTest.expectedOutput">
+                                    <ng-include src="'/hubba-admin/partials/expectedOutputTree.html'"></ng-include>
+                                </li>
+                            </ul>
+                            }
+                        </div>
+                    </div>
+                </div>-->
+
+            </div>
+
+            <div ng-show="hubba.$route.params.page == 'security'" class="tab-pane">
+                security
+            </div>
+            <div ng-show="hubba.$route.params.page == 'docs'" class="tab-pane help-pane">
+                <div class="col-lg-12 help-title-container">
+                    <h2 class="help-title">{{hubba.selectedResource.type | uppercase}}</h2>
+                </div>
+                <div ng-init="resource = hubba.selectedResource; path = '/hubba/api/resource_types/'+hubba.selectedResource.type+'/docs'" ng-include="path">3</div>
+            </div>
+            <div ng-if="hubba.selectedResource.type === 'controller'" ng-show="hubba.$route.params.page == 'GET'" class="tab-pane">
+                <div h-controller-code="updateControllerCode" h-verb="get"></div>
+            </div>
+            <div ng-if="hubba.selectedResource.type === 'controller'" ng-show="hubba.$route.params.page == 'POST'" class="tab-pane">
+                <div h-controller-code="updateControllerCode" h-verb="post"></div>
+            </div>
+            <div ng-if="hubba.selectedResource.type === 'controller'" ng-show="hubba.$route.params.page == 'PUT'" class="tab-pane">
+                <div h-controller-code="updateControllerCode" h-verb="put"></div>
+            </div>
+            <div ng-if="hubba.selectedResource.type === 'controller'" ng-show="hubba.$route.params.page == 'PATCH'" class="tab-pane">
+                <div h-controller-code="updateControllerCode" h-verb="patch"></div>
+            </div>
+            <div ng-if="hubba.selectedResource.type === 'controller'" ng-show="hubba.$route.params.page == 'DELETE'" class="tab-pane">
+                <div h-controller-code="updateControllerCode" h-verb="del"></div>
+            </div>
+        <!-- /.portlet-body -->
     </div>
-    <div ng-if="hubba.selectedResource.type === 'controller'" ng-show="hubba.$route.params.page == 'POST'" class="tab-pane">
-        <div h-controller-code="updateControllerCode" h-verb="post"></div>
-    </div>
-    <div ng-if="hubba.selectedResource.type === 'controller'" ng-show="hubba.$route.params.page == 'PUT'" class="tab-pane">
-        <div h-controller-code="updateControllerCode" h-verb="put"></div>
-    </div>
-    <div ng-if="hubba.selectedResource.type === 'controller'" ng-show="hubba.$route.params.page == 'PATCH'" class="tab-pane">
-        <div h-controller-code="updateControllerCode" h-verb="patch"></div>
-    </div>
-    <div ng-if="hubba.selectedResource.type === 'controller'" ng-show="hubba.$route.params.page == 'DELETE'" class="tab-pane">
-        <div h-controller-code="updateControllerCode" h-verb="del"></div>
-    </div>
+
+</div>
 </div>

@@ -1,0 +1,28 @@
+<p>Controller resources are meant to mimic the common definition of a controller in a web framework.</p>
+<p>Custom code can be written for each basic HTTP verb (GET,POST,PUT,PATCH,DELETE) that will respond to requests.</p>
+<p>Controllers can call other controllers using the hubba.api object.</p>
+<p>See below for details for each accessible object from within a controller</p>
+
+<h3>hubba</h3>
+<p>The hubba client is accessible via the controller and will mimic a web service call to another web service.</p>
+<p>Documentation on the hubba client can be found <strong><a href="/hubba-admin/help/hubba-client">here</a></strong></p>
+
+<h3>req</h3>
+<p>This object is modeled off of the expressjs request object: <strong><a href="http://expressjs.com/api.html#request">documentation here</a></strong></p>
+<p>The following fields/functions from expressjs are available: </p>
+<ul>
+    <li>contentLength</li><li>contentType</li> <li>body</li> <li>href</li> <li>log</li> <li>id</li> <li>path</li> <li>query</li> <li>secure</li> <li>time</li> <li>header</li>
+</ul>
+
+<p>The following fields/functions are unique to hubba: </p>
+<ul>
+    <li>internal - this field will be true if the request came from another controller</li>
+</ul>
+
+<h3>res</h3>
+<p>This object is modeled off of the expressjs response object: <strong><a href="http://expressjs.com/api.html#response">documentation here</a></strong></p></p>
+<p>The following fields/functions from expressjs are available: </p>
+<ul>
+    <li>status</li> <li>set</li> <li>get</li> <li>cookie</li> <li>clearCookie</li> <li>redirect</li> <li>location</li> <li>charset</li>
+    <li>send</li> <li>json</li> <li>jsonp</li> <li>type</li> <li>format</li> <li>attachment</li> <li>sendfile</li> <li>download</li> <li>links</li>
+</ul>

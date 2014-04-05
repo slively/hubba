@@ -1,0 +1,50 @@
+<div class="row" style="padding-top: 15px;">
+
+    <table id="logTable" class="table table-bordered table-hover table-condensed">
+        <thead>
+            <tr>
+                <th style="width:37px;" ng-click="order = 'req.initial';reverse=!reverse;">Ext.</th>
+                <th style="width:165px;" ng-click="order = 'dateTime';reverse=!reverse;">Date/Time</th>
+                <th style="width: 130px;" ng-click="order = 'req.method';reverse=!reverse;">Method</th>
+                <th>Event</th>
+                <th style="width: 290px;" ng-click="order = 'req.id';reverse=!reverse;">ID</th>
+            </tr>
+            <tr>
+                <td>
+                    <select style="width: 60px;" class="form-control" ng-model="filters.req.initial">
+                        <option></option>
+                        <option>true</option>
+                        <option>false</option>
+                    </select>
+                </td>
+                <td style="width:165px;" ng-click="order = 'dateTime'">
+                    <input type="text" class="form-control" ng-model="filters.dateTime"/>
+                </td>
+                <td>
+                    <input type="text" class="form-control" ng-model="filters.req.method"/>
+                </td>
+                <td>
+                    <input type="text" class="form-control" ng-model="filters.$"/>
+                </td>
+                <td style="width: 290px;">
+                    <input type="text" class="form-control" ng-model="filters.req.id"/>
+                </td>
+            </tr>
+        </thead>
+        <tbody ng-repeat="log in hubba.logs.cache | filter:filters | orderBy:order:reverse">
+            <tr ng-click="selectLog(log);"
+                ng-class="{ active: log.message, success: log.req.internal === false, info: log.req.internal, warning: log.socket, danger: log.error }">
+                <td style="text-align: center;"><i ng-show="log.req.initial" class="fa fa-asterisk"></i></td>
+                <td>{{ log.dateTime | date:'MM/dd/yyyy @ h:mma' }}</td>
+                <td>{{ log.req.method }}</td>
+                <td>{{ log.message || log.socket.event || log.req.path }}</td>
+                <td>{{ log.req.id }}</td>
+            </tr>
+            <tr ng-if="curLog === log">
+                <td colspan="10">
+                    <pre>{{ log | json:object }}</pre>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

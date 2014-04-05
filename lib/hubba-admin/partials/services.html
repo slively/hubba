@@ -1,0 +1,182 @@
+<div class="row" style="padding: 30px 0;">
+    <div id="resources" class="col-lg-2">
+        <div class="portlet portlet-default">
+            <div class="panel-collapse in" style="height: auto;">
+                <div class="portlet-body">
+                    <ul style="padding-bottom: 6px;">
+                        <li>
+                            <!--<button class="btn btn-orange btn-sm" ng-click="newService();" ng-disabled="newServiceSaving"><i class="fa fa-plus"></i></button>-->
+                            <a class="btn btn-orange btn-sm" href="/hubba-admin/services/new?page=config" ng-disabled="serviceSaving"><i class="fa fa-plus"></i></a>
+                        </li>
+                        <li style="margin-left: -10px;"><button class="btn btn-link" disabled="">/api</button></li>
+                    </ul>
+                    <ul ui-sortable="{stop:updateSeq}" ng-model="hubba.services.cache">
+                        <li ng-repeat="service in hubba.services.cache" id="service_{{service.id}}">
+                            <a class="btn btn-link"
+                               ng-class="{'orange-text':service.id == hubba.selectedService.id}"
+                               href="/hubba-admin/services/{{service.id}}"
+                               context-menu="selectServiceFromList(service);"
+                               data-target="serviceRightClickMenu"
+                               >
+                                {{service.path}}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="resourcePane" class="servicesPane col-lg-10">
+        <div class="alert alert-danger" ng-show="hubba.errors.length">
+            <button type="button" class="close" ng-click="hubba.errors = [];">×</button>
+            <p ng-repeat="err in hubba.errors">
+                {{err.message}}
+            </p>
+        </div>
+
+        <div class="alert alert-info" ng-hide="hubba.selectedService" style="text-align:center;width:100%;">
+            Select a service to get started.
+        </div>
+
+        <div class="portlet portlet-default" ng-show="hubba.selectedService">
+
+            <div class="portlet-heading">
+                <a ng-click="deleteService(hubba.selectedService);" style="position: absolute; color: #e74c3c; top: 0; right: 0; cursor: pointer; font-size: 20px; z-index: 999;" class="btn link">
+                    <i class="fa fa-times"></i>
+                </a>
+                <div class="portlet-title">
+                    <a title="{{hubba.selectedService.path}}" href="/api{{hubba.selectedService.path}}" target="_blank">
+                        /api{{hubba.selectedService.path}}
+                    </a>
+                </div>
+
+                <div class="clearfix"></div>
+            </div>
+            <div class="portlet-body">
+                <ul class="nav nav-pills nav-pills-square">
+                    <li ng-class="{active:hubba.$route.params.page == 'config'}"><a href="{{hubba.selectedService.id}}?page=config">Config</a></li>
+                    <li ng-class="{active:hubba.$route.params.page == 'docs'}"><a href="{{hubba.selectedService.id}}?page=docs">Docs</a></li>
+                    <li ng-class="{active:hubba.$route.params.page == 'security'}"><a href="{{hubba.selectedService.id}}?page=security">Security</a></li>
+
+                    <li ng-if="hubba.selectedService.type === 'controller'" ng-class="{active:hubba.$route.params.page == verb}" ng-repeat="verb in ['GET','POST','PUT','PATCH','DELETE']">
+                        <a href="{{hubba.selectedService.id}}?page={{verb}}">{{verb}}</a>
+                    </li>
+                </ul>
+
+                <div ng-show="hubba.$route.params.page == 'config'" class="tab-pane">
+
+                    <form class="form" ng-submit="saveService(hubba.selectedService)" ng-if="hubba.$route.params.page == 'config'">
+
+                        <div class="form-group">
+                            <label for="resourceName">Name</label>
+                            <input type="text" ng-model="hubba.selectedService.path" class="form-control" id="resourceName" placeholder="Enter resource name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="serviceType">Type</label>
+                            <select ng-model="hubba.selectedService.type" class="form-control" id="serviceType" ng-options="key as value.label for (key,value) in hubba.serviceTypes.cache" required ng-change="typeChanged()"></select>
+                        </div>
+
+
+                        <div ng-if="hubba.selectedService.type !== 'controller'" ng-repeat="key in hubba.serviceTypes.cache[hubba.selectedService.type].configurationKeys" class="form-group">
+                            <span style="display:none;" ng-init="val = hubba.serviceTypes.cache[hubba.selectedService.type].configuration[key]"></span>
+                            <label ng-if="val.inputType == 'text' || val.inputType == 'number' || val.inputType == 'select' || val.inputType == 'password' || val.inputType == 'textarea'">{{key}}</label>
+                            <label ng-if="val.inputType == 'radio' && val.header">{{val.header}}</label>
+
+                            <input type="text" class="form-control" ng-model="hubba.selectedService.configuration[key]" placeholder="{{val.placeholder}}" ng-if="val.inputType == 'text'" ng-required="val.required"/>
+
+                            <input type="password" class="form-control" ng-model="hubba.selectedService.configuration[key]" placeholder="{{val.placeholder}}" ng-if="val.inputType == 'password'" ng-required="val.required"/>
+
+                            <input type="number" class="form-control" ng-model="hubba.selectedService.configuration[key]" placeholder="{{val.placeholder}}" ng-if="val.inputType == 'number'" ng-required="val.required"/>
+
+                            <select  class="form-control" ng-if="val.inputType == 'select'" ng-multiple="val.multiple" ng-required="val.required" ng-model="hubba.selectedService.configuration[key]">
+                                <option ng-repeat="o in val.options">{{o}}</option>
+                            </select>
+
+                            <div class="checkbox" ng-if="val.inputType=='checkbox' && !val.options">
+                                <label>
+                                    <input type="checkbox" ng-model="hubba.selectedService.configuration[key]"> {{val.header}}
+                                </label>
+                            </div>
+
+                            <div ng-if="val.inputType=='radio'" >
+                                <div class="radio" ng-repeat="o in val.options">
+                                    <label>
+                                        <input type="radio" ng-model="hubba.selectedService.configuration[key]" value="{{o}}">
+                                        {{o}}
+                                    </label>
+                                </div>
+                            </div>
+
+                            <textarea class="form-control" ng-if="val.inputType == 'textarea'" placeholder="{{val.placeholder}}" rows="5" ng-model="hubba.selectedService.configuration[key]"></textarea>
+
+                        </div>
+                        <button type="submit" class="btn btn-default btn-square">Save</button>
+                    </form>
+                </div>
+
+                <div ng-show="hubba.$route.params.page == 'security'" class="tab-pane">
+                    security
+                </div>
+                <div ng-if="hubba.selectedServuce.type" ng-show="hubba.$route.params.page == 'docs'" class="tab-pane help-pane">
+                    <div class="col-lg-12 help-title-container">
+                        <h2 class="help-title">{{hubba.selectedService.type | uppercase}}</h2>
+                    </div>
+                    <div ng-init="resource = hubba.selectedService; path = '/hubba/api/service_types/'+hubba.selectedService.type+'/docs'" ng-include="path"></div>
+                </div>
+                <div ng-if="hubba.selectedService.type === 'controller'" ng-show="hubba.$route.params.page == 'GET'" class="tab-pane">
+                    <div service-controller-code service-verb="get" class="row"></div>
+                </div>
+                <div ng-if="hubba.selectedService.type === 'controller'" ng-show="hubba.$route.params.page == 'POST'" class="tab-pane">
+                    <div service-controller-code service-verb="post" class="row"></div>
+                </div>
+                <div ng-if="hubba.selectedService.type === 'controller'" ng-show="hubba.$route.params.page == 'PUT'" class="tab-pane">
+                    <div service-controller-code service-verb="put" class="row"></div>
+                </div>
+                <div ng-if="hubba.selectedService.type === 'controller'" ng-show="hubba.$route.params.page == 'PATCH'" class="tab-pane">
+                    <div service-controller-code service-verb="patch" class="row"></div>
+                </div>
+                <div ng-if="hubba.selectedService.type === 'controller'" ng-show="hubba.$route.params.page == 'DELETE'" class="tab-pane">
+                    <div service-controller-code service-verb="del" class="row"></div>
+                </div>
+                <!-- /.portlet-body -->
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="dropdown rightclickmenu" id="serviceRightClickMenu">
+    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+        <li role="presentation">
+            <a class="pointer" role="menuitem" tabindex="-1" href="/hubba-admin/services/{{selectedServiceFromList.id}}?page=config">Config</a>
+        </li>
+        <li role="presentation">
+            <a class="pointer" role="menuitem" tabindex="-1" href="/hubba-admin/services/{{selectedServiceFromList.id}}?page=docs">Documentation</a>
+        </li>
+        <li role="presentation">
+            <a class="pointer" role="menuitem" tabindex="-1" href="/hubba-admin/services/{{selectedServiceFromList.id}}?page=security">Security</a>
+        </li>
+        <li role="presentation" class="divider"></li>
+        <li role="presentation" ng-show="selectedServiceFromList.type === 'controller'">
+            <a class="pointer" role="menuitem" tabindex="-1" href="/hubba-admin/services/{{selectedServiceFromList.id}}?page=GET">GET</a>
+        </li>
+        <li role="presentation" ng-show="selectedServiceFromList.type === 'controller'">
+            <a class="pointer" role="menuitem" tabindex="-1" href="/hubba-admin/services/{{selectedServiceFromList.id}}?page=POST">POST</a>
+        </li>
+        <li role="presentation" ng-show="selectedServiceFromList.type === 'controller'">
+            <a class="pointer" role="menuitem" tabindex="-1" href="/hubba-admin/services/{{selectedServiceFromList.id}}?page=PUT">PUT</a>
+        </li>
+        <li role="presentation" ng-show="selectedServiceFromList.type === 'controller'">
+            <a class="pointer" role="menuitem" tabindex="-1" href="/hubba-admin/services/{{selectedServiceFromList.id}}?page=PATCH">PATCH</a>
+        </li>
+        <li role="presentation" ng-show="selectedServiceFromList.type === 'controller'">
+            <a class="pointer" role="menuitem" tabindex="-1" href="/hubba-admin/services/{{selectedServiceFromList.id}}?page=DELETE">DELETE</a>
+        </li>
+        <li role="presentation" class="divider"></li>
+        <li role="presentation">
+            <a class="pointer" role="menuitem" tabindex="-1" ng-click="removeServiceFromList();">Delete Service</a>
+        </li>
+    </ul>
+</div>
