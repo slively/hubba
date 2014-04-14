@@ -1,5 +1,0 @@
-<p>A rest resource behaves as a proxy or pass-through to another rest api that you want to integrate into hubba.</p>
-<p>All http verbs are passed through to the configured endpoint, and the configuration allows the option to pass-through or not pass-through headers, url parameters, query string parameters, and body data.</p>
-
-<p>If all the options are checked a GET/POST/... request to '{{resource.path.replace('*','')}}' would be exactly the same as a GET/POST/... request to <span ng-show="resource.configuration.url.length">'{{resource.configuration.url}}'</span><span ng-hide="resource.configuration.url.length"> the configured url.</span></p>
-<p>Any query parameters or headers entered into the configuration would override what comes from the request.</p>
