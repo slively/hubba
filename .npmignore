@@ -8,12 +8,19 @@ lib-cov
 *.gz
 *.iml
 *.db
+*.iml
+.DS_Store
 
+ResourceTypes
+sqliteDB
 pids
 logs
 results
 build
 .idea
 .gitignore
+public
+publicDefault
+test
 
 node_modules
