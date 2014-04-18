@@ -1,7 +1,7 @@
 {
   "name": "hubba",
-  "version": "0.0.17",
-  "preferGlobal": false,
+  "version": "0.1.2",
+  "preferGlobal": true,
   "author": "Scott lively",
   "description": "A tool to build web services, sockets, and edit static files with automated testing and pipeline all through a browser.",
   "contributors": [],
@@ -40,7 +40,7 @@
     "request": "~2.30.0",
     "rimraf": "~2.2.6",
     "soap": "~0.3.1",
-    "sqlite3": "~2.1.19",
+    "sqlite3": "~2.2.3",
     "underscore": "^1.6.0",
     "when": "^3.1.0",
     "writefile": "~0.2.7"
@@ -70,5 +70,8 @@
   "subdomain": "hubba",
   "scripts": {
     "start": "node ./lib/server.js"
+  },
+  "bin": {
+      "hubba": "bin/cli.js"
   }
 }
