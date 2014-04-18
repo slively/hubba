@@ -9,6 +9,7 @@ lib-cov
 *.iml
 *.db
 
+apps
 pids
 logs
 results
