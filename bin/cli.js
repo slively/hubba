@@ -7,154 +7,110 @@ var optimist = require('optimist'),
             alias : 'h',
             describe : 'Show this help information.'
         }
-    }).usage('Usage:\n' +
-             'hubba start myproject \t start the server for an existing app \n  ' +
-             'hubba stop myproject \t\t stop the server for an existing app \n  ' +
-             'hubba restart myproject \t restart the server for an existing app \n  ' +
-             'hubba delete myproject \t delete an app and all associated files (cannot be undone). \n  ' +
-             'hubba list \t\t list running hubba apps');
-
+    }).usage('Usage:\n  ' +
+            'hubba create \t\t\t\t create a new app in the current directory \n  ' +
+            'hubba start \t\t\t\t start the server for app in current directory \n  ' +
+            'hubba start --path /path/to/app \t start the server for app in specified directory \n  ' +
+            'hubba stop myapp \t\t\t stop the server for app by name \n  ' +
+            'hubba restart myapp \t\t\t restart the server for app by name \n  ' +
+            'hubba delete myapp \t\t\t remove myapp from server list \n  ' +
+            'hubba list \t\t\t\t list running hubba apps \n' +
+            'See: https://github.com/unitech/pm2 for more details');
 
 function main(argv){
 
-    if (['delete','start','stop','restart'].indexOf(argv._[0]) !== -1 && argv._.length < 2) {
-        console.log("\nCommand '" + argv._[0] + "' requires a project name.\n");
+    // these arguments are custom and require an app name
+    if (['create'].indexOf(argv._[0]) !== -1 && argv._.length < 2) {
+        console.log("\nCommand '" + argv._[0] + "' requires an app name.\n");
         options.showHelp();
         return;
     }
 
     var prompt = require('prompt'),
-        forever = require('forever'),
         fs = require('fs'),
-        stopApp = function (cb) {
-            var stopError = true,
-                done = cb || function(err){
-                    if (err) {
-                        console.log(argv._[1] + ' is not running, no action taken.');
-                    } else {
-                        console.log('App ' + argv._[1] + ' stopped successfully.');
-                    }
-                };
-
-            forever.list(null,function(err,list){
-                for ( var i in list ) {
-                    if (list[i].pidFile === __dirname+'/pids/'+argv._[1]+'.pid') {
-                        forever.stop(i);
-                        stopError = null;
-                    }
-                }
-                done(stopError);
-            });
-        };
+        exec = require('child_process').exec,
+        child,
+        pm2 = __dirname+'/../node_modules/pm2/bin/pm2',
+        op = require('openport');
 
     switch(argv._[0]) {
 
+        case 'create':
+            var appPath = process.cwd()+'/'+argv._[1],
+                hubbaLogsPath = appPath+'/hubba';
 
-        case 'start':
-            try {
-                fs.mkdirSync(__dirname+'/pids');
-            } catch(e) {}
-            try {
-                fs.mkdirSync(__dirname+'/logs');
-            } catch(e) {}
-            try {
-                fs.writeFileSync(__dirname+'/logs/'+argv._[1]+'.log','',{flag:'wx'});
-            } catch(e) {}
-            try {
-                fs.writeFileSync(__dirname+'/logs/'+argv._[1]+'.out','',{flag:'wx'});
-            } catch(e) {}
-            try {
-                fs.writeFileSync(__dirname+'/logs/'+argv._[1]+'.err','',{flag:'wx'});
-            } catch(e) {}
+            fs.mkdirSync(appPath);
+            fs.mkdirSync(hubbaLogsPath);
 
+            fs.writeFileSync(appPath+'/package.json',JSON.stringify({
+                "name"       : argv._[1],
+                "dependencies": {
+                    "hubba-adapter-controller": "*"
+                },
+                "engines": {
+                    "node": "0.10.x"
+                }
+            }));
 
-            if (fs.existsSync(__dirname+'/pids/'+argv._[1]+'.pid')) {
-                console.log(argv._[1]+' is already running.');
-                return;
-            }
-
-            require('openport').find({
-                startingPort: 8001,
-                endingPort: 8200
-            }, function(err, port) {
-                if (err) {
-                    console.log('error finding open port.');
-                    console.log(err);
+            process.chdir(appPath);
+            child = exec('npm install', function (error, stdout, stderr) {
+                if (error) {
+                    console.log(stderr);
                     return;
                 }
-
-                var p = forever.startDaemon(__dirname+'/../lib/app.js',{
-                    max: 1,
-                    fork: true,
-                    silent: true,
-                    pidFile: __dirname+'/pids/'+argv._[1]+'.pid',
-                    options: ['-p '+port,'-n '+argv._[1]],
-                    logFile: __dirname+'/logs/'+argv._[1]+'.log',
-                    outFile: __dirname+'/logs/'+argv._[1]+'.out',
-                    errFile: __dirname+'/logs/'+argv._[1]+'.err'
-                });
-                forever.startServer(p);
-                console.log(argv._[1] + ' running on port ' + port);
+                console.log('App ' + argv._[1] + ' create successfully.');
             });
             break;
 
-        case 'stop':
-            stopApp();
-            break;
+        case 'start':
 
-        case 'list':
+            // find an open port from 8001 - 9000
+            op.find({
+                startingPort: 8001,
+                endingPort: 9000
+            },
+                function(err, port) {
+                    if(err) { console.log(err); return; }
 
-            forever.list(null,function(err,list){
-                if (list && list.length) {
-                    for ( var i in list ) {
-                        var str = list[i].pidFile.replace(__dirname+'/pids/','').replace('.pid','') + ' running on port ';
-                        for ( var j in list[i].options ) {
-                            if (list[i].options[j].indexOf('-p ') === 0 ) {
-                                str += list[i].options[j].replace('-p ','');
-                            }
+                    var folders = process.cwd().split('/'),
+                        appName = folders[folders.length - 1],
+                        localHubbaPath =  process.cwd() + '/hubba/',
+                        cmd = pm2 + ' start -x -f ' +
+                            __dirname + '/../lib/app.js -o ' +
+                            localHubbaPath + 'out.log -e ' +
+                            localHubbaPath + 'err.log -p ' +
+                            localHubbaPath + 'hubba.pid -n ' +
+                            appName  + ' -- --dir ' + process.cwd()
+                            + ' --port ' + port;
+
+                    child = exec(cmd, function (err, stdout, stderr) {
+                        if (err) {
+                            console.log(stderr);
+                        } else {
+                            console.log(stdout);
+                            console.log('App started on port',port);
                         }
-                        console.log(str);
-                    }
-                } else {
-                    console.log('No apps running.');
+                    });
                 }
-            });
+            );
             break;
 
-        case 'stopAll':
-            forever.stopAll();
-            forever.cleanUp();
-            break;
-
+        // in case we want to limit pm2 access, otherwise should just use default
+        case 'restart':
+        case 'stop':
+        case 'list':
+        case 'logs':
+        case 'describe':
+        case 'ping':
         case 'delete':
-            prompt.start();
-            prompt.get({
-                properties: {
-                    confirm: {
-                        message: 'This command cannot be undone. Type DELETE to confirm.'
-                    }
-                }
-            }, function(err,result){
-                if (result.confirm === 'DELETE') {
-                    if (fs.existsSync(__dirname+'/../apps/'+argv._[1])) {
-
-                        stopApp(function(){
-                            require('rimraf')(__dirname+'/../apps/'+argv._[1],function(err){
-                                if(err){
-                                    console.log('Error deleting ' +argv._[1]);
-                                    console.log(err.stack);
-                                }
-
-                                console.log(argv._[1]+' deleted!');
-                            });
-
-                        });
-
-                    } else {
-                        console.log(argv._[1]+' not found, no action taken.');
-                    }
-                }
+        case 'jlist':
+        case 'prettylist':
+            var cmd = pm2 + ' ' + argv._.join(' ');
+            child = exec(cmd, function (error, stdout, stderr) {
+                console.log(stdout);
+                console.log(stderr);
             });
+
             break;
 
         default:
@@ -170,5 +126,3 @@ if (options.argv.help || options.argv._.length === 0){
 } else {
     main(options.argv);
 }
-
-
