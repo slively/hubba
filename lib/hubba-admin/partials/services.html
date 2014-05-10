@@ -16,9 +16,8 @@
                                ng-class="{'orange-text':service.id == hubba.selectedService.id}"
                                href="/hubba-admin/services/{{service.id}}"
                                context-menu="selectServiceFromList(service);"
-                               data-target="serviceRightClickMenu"
-                               >
-                                {{service.path}}
+                               data-target="serviceRightClickMenu">
+                                {{service.path}} <span ng-show="service.requiresAuthentication"><i class="fa fa-lock"></i></span>
                             </a>
                         </li>
                     </ul>
@@ -57,7 +56,6 @@
                 <ul class="nav nav-pills nav-pills-square">
                     <li ng-class="{active:hubba.$route.params.page == 'config'}"><a href="{{hubba.selectedService.id}}?page=config">Config</a></li>
                     <li ng-class="{active:hubba.$route.params.page == 'docs'}"><a href="{{hubba.selectedService.id}}?page=docs">Docs</a></li>
-                    <li ng-class="{active:hubba.$route.params.page == 'security'}"><a href="{{hubba.selectedService.id}}?page=security">Security</a></li>
 
                     <li ng-if="hubba.selectedService.type === 'controller'" ng-class="{active:hubba.$route.params.page == verb}" ng-repeat="verb in ['GET','POST','PUT','PATCH','DELETE']">
                         <a href="{{hubba.selectedService.id}}?page={{verb}}">{{verb}}</a>
@@ -116,15 +114,13 @@
                     </form>
                 </div>
 
-                <div ng-show="hubba.$route.params.page == 'security'" class="tab-pane">
-                    security
-                </div>
-                <div ng-if="hubba.selectedServuce.type" ng-show="hubba.$route.params.page == 'docs'" class="tab-pane help-pane">
+                <div ng-if="hubba.selectedService.type" ng-show="hubba.$route.params.page == 'docs'" class="tab-pane help-pane">
                     <div class="col-lg-12 help-title-container">
                         <h2 class="help-title">{{hubba.selectedService.type | uppercase}}</h2>
                     </div>
                     <div ng-init="resource = hubba.selectedService; path = '/hubba/api/service_types/'+hubba.selectedService.type+'/docs'" ng-include="path"></div>
                 </div>
+
                 <div ng-if="hubba.selectedService.type === 'controller'" ng-show="hubba.$route.params.page == 'GET'" class="tab-pane">
                     <div service-controller-code service-verb="get" class="row"></div>
                 </div>
@@ -156,7 +152,7 @@
             <a class="pointer" role="menuitem" tabindex="-1" href="/hubba-admin/services/{{selectedServiceFromList.id}}?page=docs">Documentation</a>
         </li>
         <li role="presentation">
-            <a class="pointer" role="menuitem" tabindex="-1" href="/hubba-admin/services/{{selectedServiceFromList.id}}?page=security">Security</a>
+            <a class="pointer" href="#" role="menuitem" tabindex="-1" ng-click="toggleServiceAuth(selectedServiceFromList);">Authenticate</a>
         </li>
         <li role="presentation" class="divider"></li>
         <li role="presentation" ng-show="selectedServiceFromList.type === 'controller'">
