@@ -1,5 +1,5 @@
 <div class="row" style="padding: 30px 0;">
-    <div id="resources" class="col-lg-3">
+    <div id="resources" class="col-lg-2">
         <div class="portlet portlet-default">
             <div class="panel-collapse in" style="height: auto;">
                 <div class="portlet-body">
@@ -30,7 +30,7 @@
         </div>
     </div>
 
-    <div id="resourcePane" class="col-lg-9">
+    <div id="resourcePane" class="col-lg-10">
         <div class="alert alert-danger" ng-show="hubba.errors.length">
             <button type="button" class="close" ng-click="hubba.errors = [];">×</button>
             <p ng-repeat="err in hubba.errors">
@@ -47,29 +47,45 @@
         <div class="portlet portlet-default" ng-show="hubba.selectedAuthenticator">
 
             <div class="portlet-heading">
+                <span><i class="fa fa-spin fa-spinner saving-spinner" style="top:11px;" ng-show="authenticatorSaving"></i></span>
                 <div class="portlet-title">/api/login/{{hubba.selectedAuthenticator.name}}</div>
-
                 <div class="clearfix"></div>
             </div>
             <div class="portlet-body">
-                <!--<ul class="nav nav-pills nav-pills-square">
-                    <li ng-class="{active:hubba.selectedAuthenticatorMethod == 'default' || hubba.selectedAuthenticatorMethod == undefined}">
-                        <a href="{{hubba.selectedAuthenticator.name}}?method=default">{{hubba.selectedAuthenticator.name}}</a>
-                    </li>
-                    <li ng-repeat="(name,val) in hubba.selectedAuthenticator.methods" ng-if="name!='default'"  ng-class="{active:hubba.selectedAuthenticatorMethod == name}">
-                        <a href="{{hubba.selectedAuthenticator.name}}?method={{name}}">{{hubba.selectedAuthenticator.name}}:{{name}}</a>
-                    </li>
-                    <li style="margin: 11px 0 0 15px;">
-                        <button class="btn btn-orange btn-xs" ng-hide="showNewSocketMethodInput" ng-click="newSocketMethod();"><i class="fa fa-plus"></i></button>
-                        <button class="btn btn-red btn-xs" ng-show="showNewSocketMethodInput" ng-click="showNewSocketMethodInput=false;" style="margin-top: -4px;"><i class="fa fa-minus" style="color:#fff;"></i></button>
-                        <input id="newSocketMethodInput" type="text" required style="width:100px;height:26px;display:inline;padding:6px;" class="form-control" ng-model="newSocketMethodName" ng-show="showNewSocketMethodInput" ng-keypress="saveNewSocketMethod($event);"></a>
-                    </li>
-                </ul>-->
+                <ul class="nav nav-pills nav-pills-square">
+                    <li ng-class="{active:hubba.$route.params.page === 'config'}"><a href="{{hubba.selectedAuthenticator.id}}?page=config">Config</a></li>
+                    <li ng-class="{active:hubba.$route.params.page === 'code'}"><a href="{{hubba.selectedAuthenticator.id}}?page=code">Code</a></li>
+                </ul>
 
-                <div class="tab-pane">
+                <div ng-show="hubba.$route.params.page === 'config'" class="tab-pane">
+
+                    <form class="form" ng-submit="updateAuthenticator(hubba.selectedAuthenticator)" ng-if="hubba.$route.params.page == 'config'">
+
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input id="name" type="text" class="form-control" ng-model="hubba.selectedAuthenticator.name" placeholder="myauth" required/>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="strategy">Strategy</label>
+                            <select ng-model="hubba.selectedAuthenticator.strategy" class="form-control" id="strategy" required ng-change="hubba.selectedAuthenticator.configuration = {};">
+                                <option ng-repeat="strat in hubba.authenticatorStrategies.cache">{{strat.name}}</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" ng-repeat="(key,val) in hubba.authenticatorStrategies.cache[hubba.selectedAuthenticator.strategy].configuration">
+                            <label for="strategy_{{key}}">{{key}}</label>
+                            <input id="strategy_{{key}}" type="text" class="form-control" ng-model="hubba.selectedAuthenticator.configuration[key]" placeholder="{{val.placeholder}}" ng-if="val.inputType == 'text'" ng-required="val.required"/>
+                            <input id="strategy_{{key}}" type="password" class="form-control" ng-model="hubba.selectedAuthenticator.configuration[key]" placeholder="{{val.placeholder}}" ng-if="val.inputType == 'password'" ng-required="val.required"/>
+                        </div>
+
+                        <button type="submit" class="btn btn-default btn-square">Save</button>
+                    </form>
+                </div>
+
+                <div ng-show="hubba.$route.params.page === 'code'" class="tab-pane">
                     <div class="row">
                         <div class="col-lg-12">
-                            <span><i class="fa fa-spin fa-spinner saving-spinner" ng-show="authenticatorSaving"></i></span>
                             <div ng-model="hubba.selectedAuthenticator.code" ng-change="authenticatorAutoSave(hubba.selectedAuthenticator);" ui-ace="{mode:'javascript',onLoad:aceLoaded}"></div>
                         </div>
                     </div>
