@@ -96,5 +96,8 @@
         <li role="presentation">
             <a class="pointer" role="menuitem" tabindex="-1" ng-click="removeSocketFromList();">Delete Socket</a>
         </li>
+        <li role="presentation">
+            <a class="pointer" role="menuitem" tabindex="-1" ng-click="toggleSocketAuthFromList();">Authenticate <span ng-show="selectedSocketFromList.requiresAuthentication"><i class="fa fa-check"></i></span></a>
+        </li>
     </ul>
 </div>

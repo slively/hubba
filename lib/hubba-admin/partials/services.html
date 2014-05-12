@@ -152,7 +152,7 @@
             <a class="pointer" role="menuitem" tabindex="-1" href="/hubba-admin/services/{{selectedServiceFromList.id}}?page=docs">Documentation</a>
         </li>
         <li role="presentation">
-            <a class="pointer" href="#" role="menuitem" tabindex="-1" ng-click="toggleServiceAuth(selectedServiceFromList);">Authenticate <span ng-show="selectedServiceFromList.requiresAuthentication"><i class="fa fa-check"></i></span></a>
+            <a class="pointer" role="menuitem" tabindex="-1" ng-click="toggleServiceAuth(selectedServiceFromList);">Authenticate <span ng-show="selectedServiceFromList.requiresAuthentication"><i class="fa fa-check"></i></span></a>
         </li>
         <li role="presentation" class="divider"></li>
         <li role="presentation" ng-show="selectedServiceFromList.type === 'controller'">
