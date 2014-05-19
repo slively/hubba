@@ -67,6 +67,16 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="successRedirect">Success Redirect (optional)</label>
+                            <input id="successRedirect" type="text" class="form-control" ng-model="hubba.selectedAuthenticator.successRedirect" placeholder="/api/me"/>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="failureRedirect">Failure Redirect (optional)</label>
+                            <input id="failureRedirect" type="text" class="form-control" ng-model="hubba.selectedAuthenticator.failureRedirect" placeholder="/forbidden"/>
+                        </div>
+
+                        <div class="form-group">
                             <label for="strategy">Strategy</label>
                             <select ng-model="hubba.selectedAuthenticator.strategy" class="form-control" id="strategy" required ng-change="hubba.selectedAuthenticator.configuration = {};">
                                 <option ng-repeat="strat in hubba.authenticatorStrategies.cache">{{strat.name}}</option>
