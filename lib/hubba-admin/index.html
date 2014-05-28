@@ -11,6 +11,7 @@
     <script type="text/javascript" src="/hubba-admin/static/ui-ace.min.js"></script>
     <script type="text/javascript" src="/hubba-admin/static/hubba.js"></script>
     <script type="text/javascript" src="/hubba/clients/rawClient.js"></script>
+    <script type="text/javascript" src="/hubba-admin/static/d3.min.js"></script>
 
     <!-- PACE LOAD BAR PLUGIN - This creates the subtle load bar effect at the top of the page.
     <link  href="/hubba-admin/static/theme/css/plugins/pace/pace.css" rel="stylesheet">
@@ -119,6 +120,11 @@
                     </a>
                 </li>
                 <li>
+                    <a ng-class="{active:hubba.$route.path.indexOf('/map') > -1}" href="/hubba-admin/map">
+                        <i class="fa fa-sitemap"></i> Map
+                    </a>
+                </li>
+                <li>
                     <a ng-class="{active:hubba.$route.path.indexOf('/help') > -1}" href="/hubba-admin/help">
                         <i class="fa fa-question"></i> Help
                     </a>
@@ -157,7 +163,7 @@
                 </div>
                 <div class="portlet-body">
                     <span style="position: absolute; top: 20px; right: 22px; font-size: 20px; color: white;">
-                        <i class="fa fa-spin fa-spinner saving-spinner" ng-show="hubba.authenticated === 'loading'"></i>
+                        <i class="fa fa-spin fa-refresh saving-spinner" ng-show="hubba.authenticated === 'loading'"></i>
                     </span>
                     <form accept-charset="UTF-8" role="form" ng-submit="login({username:username,password:password});">
                         <fieldset>

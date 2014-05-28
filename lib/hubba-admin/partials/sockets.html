@@ -42,10 +42,8 @@
         </p>
     </div>
 
-    <div class="alert alert-info" ng-hide="hubba.selectedSocket">
-        <center>
-            Select a socket to get started.
-        </center>
+    <div class="alert alert-info" ng-hide="hubba.selectedSocket" style="text-align: center;">
+        Select a socket to get started.
     </div>
 
     <div class="portlet portlet-default" ng-show="hubba.selectedSocket">
@@ -73,7 +71,7 @@
             <div class="tab-pane">
                 <div class="row">
                     <div class="col-lg-12">
-                        <span><i class="fa fa-spin fa-spinner saving-spinner" ng-show="socketSaving"></i></span>
+                        <span><i class="fa fa-spin fa-refresh saving-spinner" ng-show="socketSaving"></i></span>
                         <div ng-model="hubba.selectedSocket.code" ng-change="socketAutoSave(hubba.selectedSocket);" ui-ace="{mode:'javascript',onLoad:aceLoaded}"></div>
                     </div>
                 </div>

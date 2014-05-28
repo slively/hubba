@@ -5,7 +5,8 @@
                 <div class="portlet-body">
                     <ul>
                         <li>
-                            <a class="btn btn-orange btn-sm" href="/hubba-admin/authenticators/new"><i class="fa fa-plus"></i></a>
+                            <a class="btn btn-orange btn-sm" href="/hubba-admin/authenticators/new"><i class="fa fa-plus"></i></a> 
+                            <a class="btn btn-orange btn-sm" href="/hubba-admin/authenticators/settings"><i class="fa fa-cog"></i></a>
                         </li>
                         <li ng-repeat="auth in hubba.authenticators.cache | orderBy:'name'"
                             context-menu="selectSocketFromList(socket);"
@@ -38,16 +39,14 @@
             </p>
         </div>
 
-        <div class="alert alert-info" ng-hide="hubba.selectedAuthenticator">
-            <center>
-                Select an authenticator to get started.
-            </center>
+        <div class="alert alert-info" ng-hide="hubba.selectedAuthenticator || authenticatorSettings" style="text-align: center;">
+            Select an authenticator to get started.
         </div>
 
         <div class="portlet portlet-default" ng-show="hubba.selectedAuthenticator">
 
             <div class="portlet-heading">
-                <span><i class="fa fa-spin fa-spinner saving-spinner" style="top:11px;" ng-show="authenticatorSaving"></i></span>
+                <span><i class="fa fa-spin fa-refresh saving-spinner" style="top:11px;" ng-show="authenticatorSaving"></i></span>
                 <div class="portlet-title">/api/login/{{hubba.selectedAuthenticator.name}}</div>
                 <div class="clearfix"></div>
             </div>
@@ -103,6 +102,27 @@
                 <!-- /.portlet-body -->
             </div>
 
+        </div>
+
+
+        <div class="portlet portlet-default" ng-show="authenticatorSettings">
+            <div class="portlet-heading">
+                <span><i class="fa fa-spin fa-refresh saving-spinner" style="top:11px;" ng-show="authenticatorSaving"></i></span>
+                <div class="portlet-title">Authenticator Settings</div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="portlet-body">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <h4>Serialize User</h4>
+                        <div ng-model="authenticatorSettings.serializeUser" ng-change="authenticatorSettingsAutoSave(authenticatorSettings.serializeUser);" ui-ace="{mode:'javascript',onLoad:aceLoaded}"></div>
+                    </div>
+                    <div class="col-lg-6">
+                        <h4>De-Serialize User</h4>
+                        <div ng-model="authenticatorSettings.deSerializeUser" ng-change="authenticatorSettingsAutoSave(authenticatorSettings.deSerializeUser);" ui-ace="{mode:'javascript',onLoad:aceLoaded}"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
