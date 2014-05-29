@@ -95,22 +95,22 @@
                     </a>
                 </li>
                 <li>
-                    <a ng-class="{active:hubba.$route.path.indexOf('/services') > -1}" href="/hubba-admin/services">
+                    <a ng-class="{active:hubba.$route.path.indexOf('/services') > -1}" href="/hubba-admin/services/{{hubba.selectedService.id}}">
                         <i class="fa fa-cog"></i> Services
                     </a>
                 </li>
                 <li>
-                    <a ng-class="{active:hubba.$route.path.indexOf('/sockets') > -1}" href="/hubba-admin/sockets">
+                    <a ng-class="{active:hubba.$route.path.indexOf('/sockets') > -1}" href="/hubba-admin/sockets/{{hubba.selectedSocket.id}}">
                         <i class="fa fa-circle-o"></i> Sockets
                     </a>
                 </li>
                 <li>
-                    <a ng-class="{active:hubba.$route.path.indexOf('/files') > -1}" href="/hubba-admin/files">
+                    <a ng-class="{active:hubba.$route.path.indexOf('/files') > -1}" href="/hubba-admin/files/{{hubba.selectedFile.id}}">
                         <i class="fa fa-files-o"></i> Files
                     </a>
                 </li>
                 <li>
-                    <a ng-class="{active:hubba.$route.path.indexOf('/authenticators') > -1}" href="/hubba-admin/authenticators">
+                    <a ng-class="{active:hubba.$route.path.indexOf('/authenticators') > -1}" href="/hubba-admin/authenticators/{{hubba.selectedAuthenticator.id}}">
                         <i class="fa fa-lock"></i> Authentication
                     </a>
                 </li>

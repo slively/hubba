@@ -62,7 +62,7 @@
                     </li>
                 </ul>
 
-                <div ng-show="hubba.$route.params.page == 'config'" class="tab-pane">
+                <div ng-show="hubba.$route.params.page === 'config'" class="tab-pane">
 
                     <form class="form" ng-submit="saveService(hubba.selectedService)" ng-if="hubba.$route.params.page == 'config'">
 

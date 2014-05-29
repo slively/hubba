@@ -2,11 +2,10 @@
 
     <div ng-if="isFile(child)" class="form-group has-feedback" ng-class="{'has-success':(key.length && key.indexOf('.')), 'has-error': (key.length===0 || key.indexOf('.') < 1) }">
         <a class="btn btn-link"
-           ng-class="{'orange-text':child == hubba.selectedFile.id}"
            href="/hubba-admin/files/{{child.id}}"
            context-menu="selectFileFromTree(child);toggleRightClickMenuButtons('fileRightClickMenu');"
            data-target="fileRightClickMenu"
-           ng-class="{ 'highlight': highlight, 'expanded' : expanded }"
+           ng-class="{ 'highlight': highlight, 'expanded' : expanded, 'orange-text': child.id === hubba.selectedFile.id }"
            ng-hide="fileRenameInput === child">
             {{key}}
         </a>
