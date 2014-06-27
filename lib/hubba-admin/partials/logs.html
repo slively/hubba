@@ -6,6 +6,7 @@
                 <th style="width:37px;" ng-click="order = 'req.initial';reverse=!reverse;">Ext.</th>
                 <th style="width:165px;" ng-click="order = 'dateTime';reverse=!reverse;">Date/Time</th>
                 <th style="width: 130px;" ng-click="order = 'req.method';reverse=!reverse;">Method</th>
+                <th style="width: 130px;" ng-click="order = 'res.statusCode';reverse=!reverse;">Code</th>
                 <th>Event</th>
                 <th style="width: 290px;" ng-click="order = 'req.id';reverse=!reverse;">ID</th>
             </tr>
@@ -24,6 +25,9 @@
                     <input type="text" class="form-control" ng-model="filters.req.method"/>
                 </td>
                 <td>
+                    <input type="text" class="form-control" ng-model="filters.res.statusCode"/>
+                </td>
+                <td>
                     <input type="text" class="form-control" ng-model="filters.$"/>
                 </td>
                 <td style="width: 290px;">
@@ -37,7 +41,8 @@
                 <td style="text-align: center;"><i ng-show="log.req.initial" class="fa fa-asterisk"></i></td>
                 <td>{{ log.dateTime | date:'MM/dd/yyyy @ h:mma' }}</td>
                 <td>{{ log.req.method }}</td>
-                <td>{{ log.message || log.socket.event || log.req.path }}</td>
+                <td>{{ log.res.statusCode || ((log.res && log.req.method) ? 200 : '') }}</td>
+                <td>{{ log.message || log.socket.event || log.req.originalUrl || log.req.path }} <span ng-show="log.req.deserializingUser">(user deserialize)</span></td>
                 <td>{{ log.req.id }}</td>
             </tr>
             <tr ng-if="curLog === log">

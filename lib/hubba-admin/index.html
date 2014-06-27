@@ -53,9 +53,6 @@
 
         <!-- begin BRAND HEADING -->
         <div class="navbar-header">
-            <button type="button" class="navbar-toggle pull-right" data-toggle="collapse" data-target=".sidebar-collapse">
-                <i class="fa fa-bars"></i> Menu
-            </button>
             <div class="navbar-brand">
                 <a href="/hubba-admin">
                     <img src="/hubba-admin/static/logo.png" data-1x="/hubba-admin/static/logo.png" data-2x="/hubba-admin/static/theme/img/logo.png" class="hisrc img-responsive" alt="" width="172" height="20">
@@ -67,7 +64,7 @@
         <div class="nav-top">
             <ul class="nav navbar-left">
                 <li class="tooltip-sidebar-toggle">
-                    <a href="#" id="sidebar-toggle" data-toggle="tooltip" data-placement="right" title="" data-original-title="Sidebar Toggle">
+                    <a href="" ng-click="sideBarIconsOnly = !sideBarIconsOnly;" data-toggle="tooltip" data-placement="right" title="" data-original-title="Sidebar Toggle">
                         <i class="fa fa-bars"></i>
                     </a>
                 </li>
@@ -88,52 +85,57 @@
 
     <nav class="navbar-side" role="navigation">
         <div class="navbar-collapse sidebar-collapse collapse">
-            <ul id="side" class="nav navbar-nav side-nav">
+            <ul id="side" class="nav navbar-nav side-nav" ng-class="{ 'sideBarIconsOnly': sideBarIconsOnly}">
                 <li>
                     <a ng-class="{active:hubba.$route.path === '/hubba-admin/'}" href="/hubba-admin">
-                        <i class="fa fa-dashboard"></i> Dashboard
+                        <i class="fa fa-dashboard"></i> <span class="sidebar-text">Dashboard</span>
                     </a>
                 </li>
                 <li>
                     <a ng-class="{active:hubba.$route.path.indexOf('/services') > -1}" href="/hubba-admin/services/{{hubba.selectedService.id}}">
-                        <i class="fa fa-cog"></i> Services
+                        <i class="fa fa-exchange"></i> <span class="sidebar-text">Services</span>
                     </a>
                 </li>
                 <li>
                     <a ng-class="{active:hubba.$route.path.indexOf('/sockets') > -1}" href="/hubba-admin/sockets/{{hubba.selectedSocket.id}}">
-                        <i class="fa fa-circle-o"></i> Sockets
+                        <i class="fa fa-circle-o"></i> <span class="sidebar-text">Sockets</span>
                     </a>
                 </li>
                 <li>
                     <a ng-class="{active:hubba.$route.path.indexOf('/files') > -1}" href="/hubba-admin/files/{{hubba.selectedFile.id}}">
-                        <i class="fa fa-files-o"></i> Files
+                        <i class="fa fa-files-o"></i> <span class="sidebar-text">Files</span>
                     </a>
                 </li>
                 <li>
                     <a ng-class="{active:hubba.$route.path.indexOf('/authenticators') > -1}" href="/hubba-admin/authenticators/{{hubba.selectedAuthenticator.id}}">
-                        <i class="fa fa-lock"></i> Authentication
+                        <i class="fa fa-lock"></i> <span class="sidebar-text">Authentication</span>
+                    </a>
+                </li>
+                <li>
+                    <a ng-class="{active:hubba.$route.path.indexOf('/tests') > -1}" href="/hubba-admin/tests">
+                        <i class="fa fa-medkit"></i> <span class="sidebar-text">Tests</span>
                     </a>
                 </li>
                 <li>
                     <a ng-class="{active:hubba.$route.path.indexOf('/logs') > -1}" href="/hubba-admin/logs">
-                        <i class="fa fa-list"></i> Logs
+                        <i class="fa fa-list"></i> <span class="sidebar-text">Logs</span>
                     </a>
                 </li>
                 <li>
                     <a ng-class="{active:hubba.$route.path.indexOf('/map') > -1}" href="/hubba-admin/map">
-                        <i class="fa fa-sitemap"></i> Map
+                        <i class="fa fa-sitemap"></i> <span class="sidebar-text">Map</span>
                     </a>
                 </li>
                 <li>
                     <a ng-class="{active:hubba.$route.path.indexOf('/help') > -1}" href="/hubba-admin/help">
-                        <i class="fa fa-question"></i> Help
+                        <i class="fa fa-question"></i> <span class="sidebar-text">Help</span>
                     </a>
                 </li>
             </ul>
         </div>
     </nav>
 
-    <div id="page-wrapper" class="view-container fluid-container">
+    <div id="page-wrapper" class="view-container fluid-container" ng-class="{ 'sideBarIconsOnly': sideBarIconsOnly}">
         <div ng-view></div>
     </div>
 </div>

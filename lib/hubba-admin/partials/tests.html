@@ -1,0 +1,38 @@
+<div class="row" style="padding-top: 15px;">
+    <table id="testsTable" class="table table-bordered table-hover table-condensed">
+
+        <thead>
+            <tr>
+                <th ng-click="order = 'name'; reverse=!reverse;">Name</th>
+                <th ng-click="order = 'req.method'; reverse=!reverse;" style="width:100px;">Method</th>
+                <th ng-click="order = 'req.path'; reverse=!reverse;" style="width:300px;">Endpoint</th>
+            </tr>
+            <tr>
+                <td>
+                    <input type="text" class="form-control" ng-model="filters.name"/>
+                </td>
+                <td>
+                    <input type="text" class="form-control" ng-model="filters.req.method"/>
+                </td>
+                <td>
+                    <input type="text" class="form-control" ng-model="filters.req.path"/>
+                </td>
+            </tr>
+        </thead>
+
+        <tbody ng-repeat="test in hubba.tests.cache | filter:filters | orderBy:order:reverse">
+            <tr ng-click="hubba.selectedTest = (hubba.selectedTest.id === test.id) ? undefined: test;"
+                ng-class="{ success: isPassing(test), danger: isFailing(test) }">
+                <td>{{ test.name }}</td>
+                <td>{{ test.req.method }}</td>
+                <td>{{ test.req.path }}</td>
+            </tr>
+            <tr ng-if="hubba.selectedTest.id === test.id">
+                <td colspan="10">
+                    <pre>{{ test | json:object }}</pre>
+                </td>
+            </tr>
+        </tbody>
+
+    </table>
+</div>

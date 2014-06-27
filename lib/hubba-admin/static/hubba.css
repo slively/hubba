@@ -82,9 +82,13 @@ ul.dropdown-menu li { cursor: pointer; }
 
 @media (min-width: 768px) {
     #page-wrapper { margin: 50px 0 0 170px; }
+    #page-wrapper.sideBarIconsOnly { margin: 50px 0 0 45px; }
     .navbar-side .side-nav,
     .navbar-side .side-nav > li > a,
     .navbar-top .navbar-header{ width: 170px; }
+    ul#side.sideBarIconsOnly { width: 45px; }
+    ul#side.sideBarIconsOnly .sidebar-text { display: none; }
+    #side.sideBarIconsOnly li, #side.sideBarIconsOnly a { width: 45px; }
 }
 
 
