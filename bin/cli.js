@@ -80,8 +80,7 @@ function main(argv){
                             localHubbaPath + 'out.log -e ' +
                             localHubbaPath + 'err.log -p ' +
                             localHubbaPath + 'hubba.pid -n ' +
-                            appName  + ' -- --dir ' + process.cwd()
-                            + ' --port ' + port;
+                            appName;
 
                     child = exec(cmd, function (err, stdout, stderr) {
                         if (err) {
