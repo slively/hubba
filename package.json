@@ -1,6 +1,6 @@
 {
   "name": "hubba",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "preferGlobal": true,
   "author": "Scott lively",
   "description": "A tool to build web services, sockets, and edit static files with automated testing and pipeline all through a browser.",
