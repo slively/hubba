@@ -21,7 +21,6 @@ build
 .gitignore
 public
 publicDefault
-test
 apps
 
 node_modules
