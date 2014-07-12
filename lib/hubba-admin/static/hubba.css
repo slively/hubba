@@ -305,3 +305,5 @@ ul.dropdown-menu li { cursor: pointer; }
 #map2 .link.target {
     stroke: #2ca02c;
 }
+
+#testsTable tbody, #testsTable th, #testsTable td { border: none; cursor: pointer; }

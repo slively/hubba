@@ -1,38 +1,113 @@
 <div class="row" style="padding-top: 15px;">
-    <table id="testsTable" class="table table-bordered table-hover table-condensed">
+    <div class="portlet portlet-default">
 
-        <thead>
-            <tr>
-                <th ng-click="order = 'name'; reverse=!reverse;">Name</th>
-                <th ng-click="order = 'req.method'; reverse=!reverse;" style="width:100px;">Method</th>
-                <th ng-click="order = 'req.path'; reverse=!reverse;" style="width:300px;">Endpoint</th>
-            </tr>
-            <tr>
-                <td>
-                    <input type="text" class="form-control" ng-model="filters.name"/>
-                </td>
-                <td>
-                    <input type="text" class="form-control" ng-model="filters.req.method"/>
-                </td>
-                <td>
-                    <input type="text" class="form-control" ng-model="filters.req.path"/>
-                </td>
-            </tr>
-        </thead>
+        <div class="portlet-heading" style="text-align:center;font-size:20px;padding:8px 0;">
+            Service Tests
+            <div class="clearfix"></div>
+        </div>
 
-        <tbody ng-repeat="test in hubba.tests.cache | filter:filters | orderBy:order:reverse">
-            <tr ng-click="hubba.selectedTest = (hubba.selectedTest.id === test.id) ? undefined: test;"
-                ng-class="{ success: isPassing(test), danger: isFailing(test) }">
-                <td>{{ test.name }}</td>
-                <td>{{ test.req.method }}</td>
-                <td>{{ test.req.path }}</td>
-            </tr>
-            <tr ng-if="hubba.selectedTest.id === test.id">
-                <td colspan="10">
-                    <pre>{{ test | json:object }}</pre>
-                </td>
-            </tr>
-        </tbody>
+        <div class="portlet-body">
+            <ul class="nav nav-pills nav-pills-square">
+                <li ng-class="{active: !hubba.$route.params.page}"><a href="/hubba-admin/tests">Tests</a></li>
+                <li ng-class="{active:hubba.$route.params.page === 'runs'}"><a href="/hubba-admin/tests?page=runs">Runs</a></li>
+            </ul>
 
-    </table>
+            <div ng-hide="hubba.$route.params.page" class="tab-pane">
+                <table id="testsTable" class="table table-hover table-condensed">
+
+                    <thead>
+                        <tr>
+                            <th ng-click="order = 'name'; reverse=!reverse;">Name</th>
+                            <th ng-click="order = 'req.method'; reverse=!reverse;" style="width:100px;">Method</th>
+                            <th ng-click="order = 'req.path'; reverse=!reverse;" style="width:300px;">Endpoint</th>
+                            <th></th>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="text" class="form-control" ng-model="filters.name"/>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" ng-model="filters.req.method"/>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" ng-model="filters.req.path"/>
+                            </td>
+                            <td>
+                                <button class="btn btn-primary">Run All</button>
+                            </td>
+                        </tr>
+                    </thead>
+
+                    <tbody ng-repeat="test in hubba.tests.cache | filter:filters | orderBy:order:reverse">
+                        <tr ng-click="hubba.selectedTest = (hubba.selectedTest.id === test.id) ? undefined: test;"
+                            ng-class="{ success: isPassing(test), danger: isFailing(test) }">
+                            <td>{{ test.name }}</td>
+                            <td>{{ test.req.method }}</td>
+                            <td>{{ test.req.path }}</td>
+                            <td>
+                                <button class="btn btn-primary">Run</button>
+                            </td>
+                        </tr>
+                        <tr ng-if="hubba.selectedTest.id === test.id">
+                            <td colspan="10">
+                                <form role="form">
+                                    <div class="form-group">
+                                        <label for="test-name">Test Name</label>
+                                        <input type="text"
+                                               class="form-control"
+                                               id="test-name"
+                                               placeholder="Should test some service successfully"
+                                               ng-model="test.name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="test-method">Request HTTP Method</label>
+                                        <select id="test-method"
+                                                class="form-control"
+                                                ng-model="test.req.method">
+                                            <option>GET</option>
+                                            <option>POST</option>
+                                            <option>PUT</option>
+                                            <option>PATCH</option>
+                                            <option>DELETE</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <!-- TODO: pull in autocomplete from services list -->
+                                        <label for="test-path">Request Path</label>
+                                        <input type="text"
+                                               class="form-control"
+                                               id="test-path"
+                                               placeholder="/api/some-service"
+                                               ng-model="test.req.path">
+                                    </div>
+                                    <label>Request Headers <button class="btn btn-primary fa fa-plus" ng-click="test.req.headers['header']=''"></button></label>
+                                    <div class="form-group" ng-repeat="(key,val) in test.req.headers">
+                                        <input type="text"
+                                               class="form-control"
+                                               placeholder="/api/some-service"
+                                               ng-init="headerKey=key;"
+                                               ng-model="headerKey"
+                                               ng-change="updateTestHeaderKey(test, headerKey)">
+                                        <input type="text"
+                                               class="form-control"
+                                               placeholder="/api/some-service"
+                                               ng-model="test.req.headers[key]">
+                                    </div>
+                                </form>
+                                <pre>{{ test | json:object }}</pre>
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+            </div>
+
+            <div ng-show="hubba.$route.params.page === 'runs'" class="tab-pane">
+
+
+            </div>
+
+
+        </div>
+    </div>
 </div>
